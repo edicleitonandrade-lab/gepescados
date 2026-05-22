@@ -867,7 +867,7 @@ function renderAll() {
   if (encDiv) encDiv.style.display = encerrada ? 'block' : 'none';
   const tituloDiv = document.getElementById('resumo-titulo');
   if (tituloDiv) tituloDiv.textContent = encerrada ? 'Pescaria Encerrada' : 'Resumo da Pescaria';
-  const pedidos       = pedidosArray();
+  const pedidos       = pedidosArray().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }));
   const lotes         = lotesArray();
   const totalCaixas   = pedidos.reduce((a, p) => a + (p.caixas || 0), 0);
   const totalEnt      = pedidos.reduce((a, p) => a + (p.entregue || 0), 0);
