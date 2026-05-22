@@ -240,6 +240,28 @@ td .mono{font-family:'Space Mono',monospace;color:var(--accent)}
 .sync-dot.syncing{background:var(--warn);animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
+/* BACKUP */
+.btn-backup{background:rgba(100,160,255,0.15);color:#64a0ff;border:0.5px solid rgba(100,160,255,0.35)!important}
+.btn-backup:hover{background:rgba(100,160,255,0.28)}
+.backup-auto-badge{
+  position:fixed;bottom:16px;left:16px;
+  background:var(--card);border:0.5px solid var(--border2);
+  border-radius:20px;padding:6px 14px;font-size:11px;color:var(--text2);
+  display:flex;align-items:center;gap:7px;z-index:80;
+  opacity:0;transition:opacity 0.5s;pointer-events:none;
+}
+.backup-auto-badge.show{opacity:1}
+.backup-auto-badge .bdot{width:7px;height:7px;border-radius:50%;background:#64a0ff;flex-shrink:0}
+.bk-list{max-height:260px;overflow-y:auto;margin-top:4px}
+.bk-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;gap:10px}
+.bk-item-info{flex:1}
+.bk-item-time{font-size:12px;font-weight:600;color:var(--text)}
+.bk-item-meta{font-size:11px;color:var(--text2);margin-top:2px}
+.bk-empty{color:var(--text3);font-size:13px;text-align:center;padding:1.5rem}
+.import-drop{border:2px dashed var(--border2);border-radius:var(--radius);padding:2rem;text-align:center;cursor:pointer;transition:all 0.2s;color:var(--text2);font-size:13px;margin-bottom:12px}
+.import-drop:hover,.import-drop.drag{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.import-drop input{display:none}
+
 </style>
 </head>
 <body>
@@ -285,7 +307,57 @@ td .mono{font-family:'Space Mono',monospace;color:var(--accent)}
     </div>
   </div>
 
-  <!-- Modal Encerrar Pescaria -->
+<!-- Modal Backup -->
+  <div class="modal-overlay" id="modal-backup">
+    <div class="modal-box" style="max-width:480px">
+      <div class="modal-header">
+        <div class="modal-icon">💾</div>
+        <h3>Backup & Recuperação</h3>
+        <p>Exporte, importe ou restaure um backup automático</p>
+      </div>
+
+      <!-- Tabs internas -->
+      <div style="display:flex;gap:6px;margin-bottom:16px">
+        <button class="btn btn-sm" id="bk-tab-auto-btn" onclick="bkShowTab('auto')" style="flex:1">⏱ Automáticos</button>
+        <button class="btn btn-sm" id="bk-tab-export-btn" onclick="bkShowTab('export')" style="flex:1">⬇ Exportar</button>
+        <button class="btn btn-sm" id="bk-tab-import-btn" onclick="bkShowTab('import')" style="flex:1">⬆ Importar</button>
+      </div>
+
+      <!-- Aba: Automáticos -->
+      <div id="bk-tab-auto">
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Os últimos <b>10 backups automáticos</b> ficam salvos aqui (a cada 5 minutos enquanto há pescaria ativa).</p>
+        <div class="bk-list" id="bk-auto-list"></div>
+      </div>
+
+      <!-- Aba: Exportar -->
+      <div id="bk-tab-export" style="display:none">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Baixa um arquivo <b>.json</b> com todos os dados da pescaria atual (estoque, pedidos e entregas). Guarde em um lugar seguro.</p>
+        <button class="btn btn-primary btn-full" onclick="exportarBackup()">⬇ Baixar Backup Agora (.json)</button>
+        <p style="font-size:11px;color:var(--text3);margin-top:10px;text-align:center">Dica: envie para o seu WhatsApp ou Google Drive para ter uma cópia extra.</p>
+      </div>
+
+      <!-- Aba: Importar -->
+      <div id="bk-tab-import" style="display:none">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Selecione um arquivo de backup <b>.json</b> exportado anteriormente para restaurar os dados.</p>
+        <label class="import-drop" id="import-drop-area">
+          <input type="file" id="import-file-input" accept=".json" onchange="importarBackupArquivo(this)">
+          <div>📂 Clique aqui ou arraste o arquivo .json</div>
+          <div style="font-size:11px;margin-top:6px;color:var(--text3)">Somente arquivos .json de backup do G&E Pescados</div>
+        </label>
+        <div id="import-preview" style="display:none;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;font-size:13px"></div>
+        <button class="btn btn-danger btn-full" id="btn-confirmar-import" style="display:none" onclick="confirmarImportacao()">⚠ Restaurar este Backup</button>
+        <p style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">Atenção: isso substituirá os dados da pescaria atual.</p>
+      </div>
+
+      <button class="btn btn-full" style="margin-top:12px" onclick="fecharModalBackup()">Fechar</button>
+    </div>
+  </div>
+
+  <!-- Badge backup automático -->
+  <div class="backup-auto-badge" id="backup-auto-badge">
+    <div class="bdot"></div>
+    <span id="backup-auto-txt">Backup salvo</span>
+  </div>
   <div class="modal-overlay" id="modal-encerrar">
     <div class="modal-box">
       <div class="modal-header">
@@ -312,6 +384,7 @@ td .mono{font-family:'Space Mono',monospace;color:var(--accent)}
       <span class="semana-badge" id="top-semana"></span>
       <button id="btn-encerrar" class="topbar-action-btn btn-encerrar" onclick="encerrarPescaria()" style="display:none">🔴 Encerrar Pescaria</button>
       <button id="btn-nova-pescaria" class="topbar-action-btn btn-nova-pesc" onclick="abrirModalIniciarPescaria()" style="display:none">🎣 Nova Pescaria</button>
+      <button class="topbar-action-btn btn-backup" onclick="abrirModalBackup()">💾 Backup</button>
       <button class="logout-btn" onclick="doLogout()">Sair</button>
     </div>
   </div>
@@ -641,6 +714,8 @@ function _registrarListenersPescaria() {
       semanaAtual.pedidos = Object.assign({}, localPedidos, val.pedidos || {});
     }
     renderAll();
+    // Inicia backup automático quando pescaria carrega
+    iniciarBackupAuto();
   });
 
   dbListen('semanas', val => {
@@ -814,6 +889,9 @@ window.confirmarEncerrar = function() {
   s.status = 'encerrada';
   s.encerradoEm = new Date().toISOString();
   dbSet(`semanas/${semanaAtualId}`, s);
+  // Faz um backup final antes de encerrar
+  _bkSalvarAuto();
+  pararBackupAuto();
   // Mostra tela de início após encerrar
   semanaAtual = null;
   renderAll();
@@ -1543,6 +1621,237 @@ window.gerarPDF = function(semanaId) {
 
   doc.save(nomeArq);
 };
+// ── BACKUP SYSTEM ────────────────────────────────────────
+const BK_KEY        = 'gepescados_backups';   // localStorage key
+const BK_MAX        = 10;                      // máximo de backups automáticos
+const BK_INTERVAL   = 5 * 60 * 1000;          // 5 minutos
+let   _bkTimer      = null;
+let   _bkImportData = null;
+
+// ─── Coleta snapshot completo do estado atual ────────────
+function _bkSnapshot() {
+  return {
+    versao:       '1.0',
+    geradoEm:     new Date().toISOString(),
+    semanaAtualId,
+    semanaAtual:  semanaAtual  ? JSON.parse(JSON.stringify(semanaAtual))  : null,
+    todasSemanas: todasSemanas ? JSON.parse(JSON.stringify(todasSemanas)) : {}
+  };
+}
+
+// ─── Salva backup automático no localStorage ─────────────
+function _bkSalvarAuto() {
+  if (!semanaAtual) return;   // sem pescaria ativa, não faz backup
+  try {
+    const lista = _bkCarregarLista();
+    lista.unshift({ ts: new Date().toISOString(), dados: _bkSnapshot() });
+    if (lista.length > BK_MAX) lista.length = BK_MAX;
+    localStorage.setItem(BK_KEY, JSON.stringify(lista));
+    _mostrarBadgeBackup();
+  } catch(e) { console.warn('Backup auto falhou:', e); }
+}
+
+function _bkCarregarLista() {
+  try { return JSON.parse(localStorage.getItem(BK_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function _mostrarBadgeBackup() {
+  const badge = document.getElementById('backup-auto-badge');
+  const txt   = document.getElementById('backup-auto-txt');
+  if (!badge) return;
+  const h = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+  if (txt) txt.textContent = `Backup automático salvo às ${h}`;
+  badge.classList.add('show');
+  clearTimeout(_mostrarBadgeBackup._t);
+  _mostrarBadgeBackup._t = setTimeout(() => badge.classList.remove('show'), 4000);
+}
+
+// ─── Inicia / para timer de backup automático ───────────
+function iniciarBackupAuto() {
+  pararBackupAuto();
+  _bkTimer = setInterval(_bkSalvarAuto, BK_INTERVAL);
+  // Faz um backup imediato ao iniciar
+  setTimeout(_bkSalvarAuto, 3000);
+}
+function pararBackupAuto() {
+  if (_bkTimer) { clearInterval(_bkTimer); _bkTimer = null; }
+}
+
+// ─── Modal ───────────────────────────────────────────────
+window.abrirModalBackup = function() {
+  document.getElementById('modal-backup').classList.add('open');
+  bkShowTab('auto');
+};
+window.fecharModalBackup = function() {
+  document.getElementById('modal-backup').classList.remove('open');
+  _bkImportData = null;
+};
+
+window.bkShowTab = function(tab) {
+  ['auto','export','import'].forEach(t => {
+    document.getElementById('bk-tab-' + t).style.display           = t === tab ? '' : 'none';
+    document.getElementById('bk-tab-' + t + '-btn').style.background = t === tab ? 'var(--accent-dim2)' : '';
+    document.getElementById('bk-tab-' + t + '-btn').style.color      = t === tab ? 'var(--accent)' : '';
+  });
+  if (tab === 'auto') _renderListaBackups();
+  if (tab === 'import') {
+    document.getElementById('import-preview').style.display    = 'none';
+    document.getElementById('btn-confirmar-import').style.display = 'none';
+    document.getElementById('import-file-input').value = '';
+    _bkImportData = null;
+  }
+};
+
+function _renderListaBackups() {
+  const lista = _bkCarregarLista();
+  const el    = document.getElementById('bk-auto-list');
+  if (!el) return;
+  if (!lista.length) {
+    el.innerHTML = '<div class="bk-empty">Nenhum backup automático salvo ainda.<br>Eles aparecem aqui após 5 minutos de pescaria ativa.</div>';
+    return;
+  }
+  el.innerHTML = lista.map((bk, i) => {
+    const d    = new Date(bk.ts);
+    const hora = d.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+    const sem  = bk.dados?.semanaAtual;
+    const peds = sem ? Object.keys(sem.pedidos || {}).length : 0;
+    const lots = sem ? Object.keys(sem.lotes   || {}).length : 0;
+    const label = sem?.label || '—';
+    return `<div class="bk-item">
+      <div class="bk-item-info">
+        <div class="bk-item-time">🕐 ${hora}</div>
+        <div class="bk-item-meta">${label} · ${peds} pedido(s) · ${lots} lote(s)</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm btn-success" onclick="restaurarBackupAuto(${i})">↩ Restaurar</button>
+        <button class="btn btn-sm" onclick="baixarBackupAuto(${i})">⬇</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Exportar backup manual (.json) ─────────────────────
+window.exportarBackup = function() {
+  const snap    = _bkSnapshot();
+  const json    = JSON.stringify(snap, null, 2);
+  const blob    = new Blob([json], { type: 'application/json' });
+  const url     = URL.createObjectURL(blob);
+  const a       = document.createElement('a');
+  const data    = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
+  const hora    = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }).replace(':','-');
+  a.href        = url;
+  a.download    = `GEPescados_Backup_${data}_${hora}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+window.baixarBackupAuto = function(idx) {
+  const lista = _bkCarregarLista();
+  const bk    = lista[idx];
+  if (!bk) return;
+  const json  = JSON.stringify(bk.dados, null, 2);
+  const blob  = new Blob([json], { type: 'application/json' });
+  const url   = URL.createObjectURL(blob);
+  const a     = document.createElement('a');
+  const data  = new Date(bk.ts).toLocaleDateString('pt-BR').replace(/\//g,'-');
+  const hora  = new Date(bk.ts).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }).replace(':','-');
+  a.href      = url;
+  a.download  = `GEPescados_Backup_${data}_${hora}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+// ─── Restaurar a partir de backup automático ────────────
+window.restaurarBackupAuto = function(idx) {
+  const lista = _bkCarregarLista();
+  const bk    = lista[idx];
+  if (!bk) return;
+  const d = new Date(bk.ts).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+  if (!confirm(`Restaurar backup de ${d}?\n\nIsso vai substituir os dados atuais pelos dados deste backup.\nTem certeza?`)) return;
+  _aplicarRestore(bk.dados);
+};
+
+// ─── Importar backup de arquivo .json ───────────────────
+window.importarBackupArquivo = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const dados = JSON.parse(e.target.result);
+      if (!dados.semanaAtual && !dados.todasSemanas) throw new Error('Arquivo inválido');
+      _bkImportData = dados;
+      const sem   = dados.semanaAtual;
+      const peds  = sem ? Object.keys(sem.pedidos || {}).length : 0;
+      const lots  = sem ? Object.keys(sem.lotes   || {}).length : 0;
+      const gerado = dados.geradoEm ? new Date(dados.geradoEm).toLocaleString('pt-BR') : '—';
+      const prev  = document.getElementById('import-preview');
+      prev.innerHTML = `
+        <div style="margin-bottom:6px;font-weight:600;color:var(--accent)">✓ Arquivo válido</div>
+        <div style="color:var(--text2);font-size:12px;line-height:1.8">
+          📅 Gerado em: <b style="color:var(--text)">${gerado}</b><br>
+          🎣 Pescaria: <b style="color:var(--text)">${sem?.label || '—'}</b><br>
+          📋 Pedidos: <b style="color:var(--text)">${peds}</b><br>
+          📦 Lotes: <b style="color:var(--text)">${lots}</b>
+        </div>`;
+      prev.style.display = 'block';
+      document.getElementById('btn-confirmar-import').style.display = 'block';
+    } catch(err) {
+      alert('Arquivo inválido ou corrompido. Use apenas arquivos .json exportados pelo G&E Pescados.');
+      _bkImportData = null;
+    }
+  };
+  reader.readAsText(file);
+};
+
+window.confirmarImportacao = function() {
+  if (!_bkImportData) return;
+  if (!confirm('Confirmar restauração?\n\nOs dados atuais serão substituídos pelos dados do arquivo importado.')) return;
+  _aplicarRestore(_bkImportData);
+  fecharModalBackup();
+};
+
+// ─── Aplica o restore efetivamente ──────────────────────
+function _aplicarRestore(dados) {
+  if (!dados) return;
+  try {
+    // Grava todas as semanas no Firebase
+    if (dados.todasSemanas && Object.keys(dados.todasSemanas).length) {
+      dbSet('semanas', dados.todasSemanas);
+    }
+    // Grava semanaAtualId no Firebase
+    if (dados.semanaAtualId) {
+      dbSet('semanaAtualId', dados.semanaAtualId);
+    }
+    // Atualiza memória local imediatamente para não esperar resposta do Firebase
+    todasSemanas  = dados.todasSemanas  || {};
+    semanaAtualId = dados.semanaAtualId || null;
+    semanaAtual   = dados.semanaAtual   || null;
+    renderAll();
+    fecharModalBackup && fecharModalBackup();
+    alert('✅ Backup restaurado com sucesso! Os dados foram recuperados.');
+  } catch(e) {
+    alert('Erro ao restaurar backup: ' + e.message);
+  }
+}
+
+// ─── Drag & drop na área de import ──────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  const area = document.getElementById('import-drop-area');
+  if (!area) return;
+  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag'); });
+  area.addEventListener('dragleave', () => area.classList.remove('drag'));
+  area.addEventListener('drop', e => {
+    e.preventDefault(); area.classList.remove('drag');
+    const f = e.dataTransfer.files[0];
+    if (f) {
+      const fakeInput = { files: [f] };
+      importarBackupArquivo(fakeInput);
+    }
+  });
+});
+
 // ── INIT ─────────────────────────────────────────────────
 (function init() {
   // Seta data padrão no campo estoque
