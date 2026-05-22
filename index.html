@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>G & E Pescados</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+
+
+:root{
+  --bg:#0a1628;--bg2:#0f1e38;--bg3:#162544;
+  --card:#1a2d50;--card2:#1f3560;
+  --accent:#00c9a7;--accent2:#00e5c0;
+  --accent-dim:rgba(0,201,167,0.12);--accent-dim2:rgba(0,201,167,0.25);
+  --text:#e8f0fe;--text2:#8ca6c8;--text3:#4a6a96;
+  --border:rgba(0,201,167,0.15);--border2:rgba(0,201,167,0.3);
+  --danger:#ff6b6b;--danger-dim:rgba(255,107,107,0.12);
+  --warn:#ffc43d;--warn-dim:rgba(255,196,61,0.12);
+  --radius:12px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+button{font-family:'Sora',sans-serif;cursor:pointer}
+input,select{font-family:'Sora',sans-serif}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--accent-dim2);border-radius:4px}
+
+/* LOGIN */
+#login-screen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:2rem;background:var(--bg);
+  position:fixed;inset:0;z-index:100;transition:opacity 0.4s,visibility 0.4s;
+}
+#login-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.login-box{
+  width:100%;max-width:380px;background:var(--card);
+  border:0.5px solid var(--border2);border-radius:20px;padding:2.5rem 2rem;
+  position:relative;overflow:hidden;
+}
+.login-box::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;
+  background:radial-gradient(circle,rgba(0,201,167,0.08),transparent 70%);
+  border-radius:50%;pointer-events:none;
+}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:2rem}
+.login-logo .icon{width:48px;height:48px;background:var(--accent-dim2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid var(--border2)}
+.login-logo h1{font-size:20px;font-weight:700;letter-spacing:-0.5px}
+.login-logo h1 span{color:var(--accent)}
+.login-logo p{font-size:11px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+.login-label{font-size:11px;color:var(--text2);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px;display:block}
+.login-input{
+  width:100%;background:var(--bg2);border:0.5px solid var(--border2);
+  border-radius:var(--radius-sm);color:var(--text);padding:12px 14px;
+  font-size:15px;margin-bottom:1rem;outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.login-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.login-btn{
+  width:100%;padding:13px;background:var(--accent);color:var(--bg);
+  border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;
+  transition:opacity 0.2s,transform 0.1s;margin-top:4px;
+}
+.login-btn:hover{opacity:0.9}
+.login-btn:active{transform:scale(0.98)}
+.login-error{
+  background:var(--danger-dim);border:0.5px solid rgba(255,107,107,0.3);
+  border-radius:var(--radius-sm);padding:10px 12px;
+  color:var(--danger);font-size:13px;margin-bottom:1rem;display:none;align-items:center;gap:6px;
+}
+
+/* APP PANEL */
+#app{display:none;flex-direction:column;min-height:100vh}
+.topbar{
+  background:var(--bg2);border-bottom:0.5px solid var(--border);
+  padding:0 1.5rem;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+}
+.topbar-logo{display:flex;align-items:center;gap:10px}
+.topbar-logo .ticon{width:34px;height:34px;background:var(--accent-dim2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;border:0.5px solid var(--border2)}
+.topbar-logo h1{font-size:16px;font-weight:700}
+.topbar-logo h1 span{color:var(--accent)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.logout-btn{background:none;border:0.5px solid var(--border2);color:var(--text2);padding:6px 12px;border-radius:var(--radius-sm);font-size:12px;transition:all 0.2s}
+.logout-btn:hover{border-color:var(--danger);color:var(--danger)}
+.semana-badge{background:var(--accent-dim);border:0.5px solid var(--border2);color:var(--accent);font-size:11px;padding:4px 10px;border-radius:20px;font-family:'Space Mono',monospace}
+
+.nav{background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;overflow-x:auto;padding:0 1.5rem;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{background:none;border:none;color:var(--text2);padding:14px 14px;font-size:13px;font-weight:500;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.2s;display:flex;align-items:center;gap:5px}
+.nav-btn:hover{color:var(--text)}
+.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.main{flex:1;padding:1.5rem;max-width:900px;width:100%;margin:0 auto}
+.section{display:none}
+.section.active{display:block}
+.section-header{margin-bottom:1.5rem}
+.section-header h2{font-size:20px;font-weight:700;letter-spacing:-0.5px}
+.section-header p{color:var(--text2);font-size:13px;margin-top:4px}
+.card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:12px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.card-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2)}
+
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1.5rem}
+.metric{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem}
+.metric .m-val{font-size:26px;font-weight:700;font-family:'Space Mono',monospace;color:var(--accent);letter-spacing:-1px}
+.metric .m-val sup{font-size:13px;letter-spacing:0}
+.metric .m-lbl{font-size:11px;color:var(--text2);margin-top:3px;text-transform:uppercase;letter-spacing:0.6px}
+.metric.warn .m-val{color:var(--warn)}
+.metric.danger .m-val{color:var(--danger)}
+
+.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.form-field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:140px}
+.form-field label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.6px}
+.form-field input,.form-field select{background:var(--bg2);border:0.5px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+.form-field input:focus,.form-field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.form-field select option{background:var(--bg2)}
+
+.btn{padding:9px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;border:0.5px solid var(--border2);background:none;color:var(--text2);transition:all 0.2s}
+.btn:hover{background:var(--card2);color:var(--text)}
+.btn-primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn-primary:hover{opacity:0.85;background:var(--accent)}
+.btn-danger{color:var(--danger);border-color:rgba(255,107,107,0.3)}
+.btn-danger:hover{background:var(--danger-dim)}
+.btn-success{color:var(--accent);border-color:var(--border2)}
+.btn-success:hover{background:var(--accent-dim)}
+.btn-warn{color:var(--warn);border-color:rgba(255,196,61,0.3)}
+.btn-warn:hover{background:var(--warn-dim)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-full{width:100%;margin-top:6px;padding:12px}
+
+.item{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:8px;transition:border-color 0.2s}
+.item:hover{border-color:var(--border2)}
+.item-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.item-nome{font-size:15px;font-weight:600;flex:1}
+.item-info{font-size:12px;color:var(--text2);margin-top:3px}
+.item-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.item-kg{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--accent)}
+
+.badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:0.4px}
+.badge-ok{background:rgba(0,201,167,0.15);color:var(--accent);border:0.5px solid rgba(0,201,167,0.3)}
+.badge-pend{background:var(--warn-dim);color:var(--warn);border:0.5px solid rgba(255,196,61,0.3)}
+.badge-parc{background:rgba(100,160,255,0.12);color:#64a0ff;border:0.5px solid rgba(100,160,255,0.3)}
+.prog-bg{background:var(--bg2);border-radius:4px;height:5px;margin-top:8px}
+.prog{height:5px;border-radius:4px;background:var(--accent);transition:width 0.4s}
+.prog.warn{background:var(--warn)}
+
+.alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.alert-warn{background:var(--warn-dim);border:0.5px solid rgba(255,196,61,0.3);color:var(--warn)}
+.alert-ok{background:var(--accent-dim);border:0.5px solid var(--border2);color:var(--accent)}
+.alert-danger{background:var(--danger-dim);border:0.5px solid rgba(255,107,107,0.3);color:var(--danger)}
+
+.nova-semana-btn{width:100%;padding:12px;background:none;border:1px dashed var(--border2);border-radius:var(--radius);color:var(--accent);font-size:14px;font-weight:600;transition:all 0.2s;margin-bottom:12px}
+.nova-semana-btn:hover{background:var(--accent-dim);border-style:solid}
+
+.hist-item{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:8px}
+.hist-item.hist-current{border-color:var(--border2)}
+.hist-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.hist-body{margin-top:10px;border-top:0.5px solid var(--border);padding-top:10px;display:none}
+.hist-body.open{display:block}
+
+.rel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:1.5rem}
+.rel-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:1rem}
+.rel-val{font-size:22px;font-weight:700;font-family:'Space Mono',monospace;color:var(--accent)}
+.rel-lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
+
+.empty{color:var(--text3);font-size:14px;text-align:center;padding:2rem;border:0.5px dashed var(--border);border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;padding:8px 10px;text-align:left;border-bottom:0.5px solid var(--border)}
+td{padding:10px;font-size:13px;border-bottom:0.5px solid rgba(0,201,167,0.06)}
+tr:last-child td{border-bottom:none}
+td .mono{font-family:'Space Mono',monospace;color:var(--accent)}
+@media(max-width:600px){.main{padding:1rem}.topbar{padding:0 1rem}.metric .m-val{font-size:20px}.semana-badge{display:none}}
+
+/* ── PESCARIA STATUS BADGES ───────────────────────────────── */
+.pesc-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.3px}
+.pesc-ativa{background:rgba(0,201,167,0.15);color:var(--accent);border:0.5px solid rgba(0,201,167,0.4)}
+.pesc-encerrada{background:rgba(255,107,107,0.15);color:#ff6b6b;border:0.5px solid rgba(255,107,107,0.4)}
+
+/* ── TOPBAR ACTION BUTTONS ───────────────────────────────── */
+.topbar-action-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 13px;border-radius:var(--radius-sm);
+  font-size:12px;font-weight:700;border:none;
+  transition:all 0.2s;cursor:pointer;white-space:nowrap;
+}
+.btn-encerrar{background:rgba(255,107,107,0.2);color:#ff6b6b;border:0.5px solid rgba(255,107,107,0.4)!important}
+.btn-encerrar:hover{background:rgba(255,107,107,0.35)}
+.btn-nova-pesc{background:var(--accent-dim2);color:var(--accent);border:0.5px solid var(--border2)!important}
+.btn-nova-pesc:hover{background:rgba(0,201,167,0.35)}
+
+/* ── MODAL ───────────────────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(5,14,30,0.85);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;padding:1.5rem;
+}
+.modal-overlay.open{display:flex}
+.modal-box{
+  background:var(--card);border:0.5px solid var(--border2);
+  border-radius:18px;padding:2rem;width:100%;max-width:420px;
+  box-shadow:0 24px 80px rgba(0,0,0,0.6);
+  animation:modalIn 0.22s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.92) translateY(12px)}to{opacity:1;transform:none}}
+.modal-header{text-align:center;margin-bottom:1.5rem}
+.modal-icon{font-size:40px;margin-bottom:10px}
+.modal-header h3{font-size:18px;font-weight:700;margin-bottom:4px}
+.modal-header p{font-size:13px;color:var(--text2)}
+
+/* ── ENCERRAR AVISOS ─────────────────────────────────────── */
+.enc-aviso{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:8px}
+.enc-aviso-warn{background:rgba(255,107,107,0.12);border:0.5px solid rgba(255,107,107,0.3);color:#ff8f8f}
+
+/* ── TELA DE INÍCIO ──────────────────────────────────────── */
+.inicio-hero{
+  text-align:center;padding:4rem 2rem;
+  border:1px dashed var(--border2);border-radius:var(--radius);
+  background:var(--card);margin-top:1rem;
+}
+.inicio-icon{font-size:64px;margin-bottom:1.2rem;filter:drop-shadow(0 0 20px rgba(0,201,167,0.3))}
+.inicio-hero h2{font-size:22px;font-weight:700;margin-bottom:10px}
+.inicio-hero p{color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:2rem}
+.inicio-btn{padding:14px 32px!important;font-size:15px!important;font-weight:700!important;border-radius:var(--radius)!important}
+
+
+/* LOADING */
+#loading-overlay{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#loading-overlay.hidden{display:none}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--accent-dim2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{color:var(--text2);font-size:13px;letter-spacing:1px}
+/* SYNC BADGE */
+.sync-badge{position:fixed;bottom:16px;right:16px;background:var(--card);border:0.5px solid var(--border2);border-radius:20px;padding:6px 12px;font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px;z-index:80;opacity:0;transition:opacity 0.3s}
+.sync-badge.show{opacity:1}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.sync-dot.syncing{background:var(--warn);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+</style>
+</head>
+<body>
+
+<div id="loading-overlay" class="hidden">
+  <div class="loading-spinner"></div>
+  <div class="loading-txt">Conectando ao servidor...</div>
+</div>
+<div class="sync-badge" id="sync-badge"><div class="sync-dot" id="sync-dot"></div><span id="sync-txt">Sincronizado</span></div>
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="icon">🦐</div>
+      <div>
+        <h1>G <span>&</span> E Pescados</h1>
+        <p>Painel Local Autônomo</p>
+      </div>
+    </div>
+    <div id="login-error" class="login-error"></div>
+    <label class="login-label">Senha de acesso</label>
+    <input type="password" class="login-input" id="senha-input" placeholder="••••••••"/>
+    <button class="login-btn" id="login-btn" type="button">Entrar</button>
+  </div>
+</div>
+
+<div id="app" style="display:none;flex-direction:column;min-height:100vh">
+  <!-- Modal Iniciar Pescaria -->
+  <div class="modal-overlay" id="modal-iniciar">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-icon modal-icon-green">🎣</div>
+        <h3>Iniciar Nova Pescaria</h3>
+        <p>Dê um nome para identificar esta pescaria no histórico</p>
+      </div>
+      <div class="form-field" style="margin-bottom:16px">
+        <label>Nome da Pescaria</label>
+        <input type="text" id="nova-pescaria-nome" placeholder="Ex: Pescaria de Maio 2025"/>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary" style="flex:1;padding:12px" onclick="confirmarIniciarPescaria()">🎣 Iniciar Pescaria</button>
+        <button class="btn" style="padding:12px" onclick="fecharModalIniciar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Encerrar Pescaria -->
+  <div class="modal-overlay" id="modal-encerrar">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-icon modal-icon-red">⚠️</div>
+        <h3>Encerrar Pescaria?</h3>
+        <p>Foram encontradas pendências antes do encerramento:</p>
+      </div>
+      <div id="enc-avisos" style="margin-bottom:16px"></div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Deseja realmente encerrar a pescaria mesmo assim?</p>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-danger" style="flex:1;padding:12px" onclick="confirmarEncerrar()">🔴 Sim, encerrar mesmo assim</button>
+        <button class="btn" style="padding:12px" onclick="fecharModalEncerrar()">Não, voltar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="ticon">🦐</div>
+      <h1>G <span>&</span> E Pescados</h1>
+    </div>
+    <div class="topbar-right">
+      <span id="top-status-badge"></span>
+      <span class="semana-badge" id="top-semana"></span>
+      <button id="btn-encerrar" class="topbar-action-btn btn-encerrar" onclick="encerrarPescaria()" style="display:none">🔴 Encerrar Pescaria</button>
+      <button id="btn-nova-pescaria" class="topbar-action-btn btn-nova-pesc" onclick="abrirModalIniciarPescaria()" style="display:none">🎣 Nova Pescaria</button>
+      <button class="logout-btn" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
+  
+  <div class="nav">
+    <button class="nav-btn active" onclick="showTab('resumo',this)">📊 Resumo</button>
+    <button class="nav-btn" onclick="showTab('pedidos',this)">📋 Pedidos</button>
+    <button class="nav-btn" onclick="showTab('estoque',this)">📦 Estoque</button>
+    <button class="nav-btn" onclick="showTab('entregas',this)">🚚 Entregas</button>
+    <button class="nav-btn" onclick="showTab('historico',this)">📅 Histórico</button>
+    <button class="nav-btn" onclick="showTab('relatorio',this)">📈 Relatório</button>
+  </div>
+
+  <div class="main">
+
+    <div class="section active" id="tab-resumo">
+      <div id="painel-inicio" style="display:block">
+        <div class="inicio-hero">
+          <div class="inicio-icon">🎣</div>
+          <h2>Bem-vindo ao G &amp; E Pescados</h2>
+          <p>Nenhuma pescaria ativa no momento.<br>Inicie uma nova pescaria para começar a registrar o estoque, pedidos e entregas.</p>
+          <button class="btn btn-primary inicio-btn" onclick="abrirModalIniciarPescaria()">🎣 Iniciar Nova Pescaria</button>
+        </div>
+      </div>
+      <div id="painel-resumo-ativo" style="display:none">
+        <div class="section-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div><h2 id="resumo-titulo">Resumo da Pescaria</h2><p id="resumo-sub"></p></div>
+          <div id="resumo-status-encerrada" style="display:none">
+            <div class="alert alert-danger" style="margin:0">🔴 Esta pescaria está <b>encerrada</b>. Inicie uma nova para continuar operando.</div>
+          </div>
+        </div>
+        <div class="metrics" id="res-metrics"></div>
+        <div id="res-alerts"></div>
+        <div class="card"><div class="card-header"><span class="card-title">Separação de Pedidos</span></div><div id="res-lista"></div></div>
+      </div>
+    </div>
+
+    <div class="section" id="tab-pedidos">
+      <div class="section-header"><h2>Lançar Pedidos de Clientes</h2><p>Vincule as demandas de acordo com o estoque real disponível nesta semana</p></div>
+      <div class="card" id="form-pedido">
+        <div class="card-header"><span class="card-title">Vincular Cliente ao Estoque</span></div>
+        <div class="form-row">
+          <div class="form-field" style="flex:2"><label>Nome do Cliente</label><input type="text" id="p-nome" placeholder="Ex: João do Camarão"/></div>
+          <div class="form-field"><label>Qtd. (caixas)</label><input type="number" id="p-caixas" placeholder="0" min="1" step="1"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Camarão Disponível no Estoque</label>
+            <select id="p-tipo">
+              </select>
+          </div>
+          <div class="form-field"><label>Contato (Opcional)</label><input type="text" id="p-contato" placeholder="WhatsApp"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Observação (Opcional)</label><input type="text" id="p-obs" placeholder="Ex: Pegar caixas do fundo"/></div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="addPedido()">+ Confirmar Separação de Pedido</button>
+      </div>
+      <div id="lista-pedidos"></div>
+    </div>
+
+    <div class="section" id="tab-estoque">
+      <div class="section-header"><h2>Estoque Recebido</h2><p>Lance aqui os camarões pescados que chegaram (Peso fixo: 16kg por caixa)</p></div>
+      <div class="card" id="form-estoque">
+        <div class="card-header"><span class="card-title">Adicionar Novo Lote Chegado</span></div>
+        <div class="form-row">
+          <div class="form-field" style="flex:2"><label>Descrição / Classificação do Camarão</label><input type="text" id="e-tipo" placeholder="Ex: Camarão de 20g" list="tipos-sugeridos"/><datalist id="tipos-sugeridos"><option value="Camarão de 10g"/><option value="Camarão de 15g"/><option value="Camarão de 20g"/><option value="Camarão de 25g"/><option value="Camarão de 30g"/><option value="Camarão de 40g"/><option value="Camarão de 50g"/></datalist></div>
+          <div class="form-field"><label>Caixas Recebidas</label><input type="number" id="e-caixas" placeholder="Ex: 50" min="1" step="1"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Data de Chegada</label><input type="date" id="e-data"/></div>
+          <div class="form-field"><label>Observação (Opcional)</label><input type="text" id="e-obs" placeholder="Ex: Lote vindo do Ceará"/></div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="addLote()">📦 Adicionar lote ao estoque</button>
+      </div>
+      <div id="estoque-status"></div>
+    </div>
+
+    <div class="section" id="tab-entregas">
+      <div class="section-header"><h2>Controle de Baixas e Entregas</h2><p>Monitore o fluxo de saídas físicas das caixas</p></div>
+      <div id="lista-entregas"></div>
+    </div>
+
+    <div class="section" id="tab-historico">
+      <div class="section-header"><h2>Histórico de Pescarias</h2><p>Todas as pescarias registradas, ativas ou encerradas</p></div>
+      <button class="nova-semana-btn" onclick="abrirModalIniciarPescaria()">🎣 Iniciar Nova Pescaria</button>
+      <div id="lista-historico"></div>
+    </div>
+
+    <div class="section" id="tab-relatorio">
+      <div class="section-header"><h2>Métricas Consolidadas</h2><p>Desempenho acumulado de todas as semanas arquivadas</p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem">
+        <button class="btn btn-primary" onclick="gerarPDF('todas')" style="display:flex;align-items:center;gap:7px;padding:11px 20px;font-size:13px">
+          <span style="font-size:16px">📄</span> Baixar PDF — Histórico Completo
+        </button>
+        <button class="btn" onclick="gerarPDF(semanaAtualId)" style="display:flex;align-items:center;gap:7px;padding:11px 20px;font-size:13px;border-color:rgba(0,201,167,0.4)">
+          <span style="font-size:16px">📋</span> PDF — Semana Atual
+        </button>
+      </div>
+      <div id="rel-content"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+
+// ── FIREBASE CONFIG ───────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyBRbWBmmLNfu5PZ0qP0Szh66jYsiQkNhRw",
+  authDomain: "g-e-e-pescados.firebaseapp.com",
+  databaseURL: "https://g-e-e-pescados-default-rtdb.firebaseio.com",
+  projectId: "g-e-e-pescados",
+  storageBucket: "g-e-e-pescados.firebasestorage.app",
+  messagingSenderId: "194592700096",
+  appId: "1:194592700096:web:f1a61104d641554a149f25"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ── CONSTANTES ───────────────────────────────────────────
+const KG_POR_CAIXA = 16;
+
+// ── HELPERS ───────────────────────────────────────────────
+function fbRef(path) { return db.ref(path); }
+
+function mostrarLoading(show) {
+  var el = document.getElementById('loading-overlay');
+  if (el) el.className = show ? '' : 'hidden';
+}
+
+function mostrarSync(syncing) {
+  var badge = document.getElementById('sync-badge');
+  var dot = document.getElementById('sync-dot');
+  var txt = document.getElementById('sync-txt');
+  if (!badge) return;
+  badge.classList.add('show');
+  if (syncing) {
+    dot.className = 'sync-dot syncing';
+    txt.textContent = 'Salvando...';
+  } else {
+    dot.className = 'sync-dot';
+    txt.textContent = 'Sincronizado';
+    setTimeout(function(){ badge.classList.remove('show'); }, 2000);
+  }
+}
+
+// ── BANCO DE DADOS FIREBASE ───────────────────────────────
+// dbGet: leitura única (síncrona do cache local do Firebase)
+// dbListen: listener em tempo real
+// dbSet: escrita
+// dbPush: adiciona item com chave automática
+// dbRemove: remove item
+
+const _fbListeners = {}; // path -> unsubscribe fn
+
+function dbGet(path) {
+  // Retorna do cache em memória (Firebase mantém cache local)
+  return _memGet(path);
+}
+
+function dbSet(path, val) {
+  mostrarSync(true);
+  _memSet(path, val);
+  if (val === null) {
+    fbRef(path).remove().then(function(){ mostrarSync(false); });
+  } else {
+    fbRef(path).set(val).then(function(){ mostrarSync(false); });
+  }
+}
+
+function dbPush(path, val) {
+  mostrarSync(true);
+  const ref = fbRef(path).push();
+  const key = ref.key;
+  _memSet(path + '/' + key, val);
+  ref.set(val).then(function(){ mostrarSync(false); });
+  return { key };
+}
+
+function dbRemove(path) {
+  mostrarSync(true);
+  _memSet(path, null);
+  const parts = path.split('/');
+  const k = parts.pop();
+  const parent = parts.join('/');
+  const col = _memGet(parent) || {};
+  delete col[k];
+  _memSet(parent, col);
+  fbRef(path).remove().then(function(){ mostrarSync(false); });
+}
+
+function dbListen(path, cb) {
+  // Remove listener anterior se existir
+  if (_fbListeners[path]) {
+    fbRef(path).off('value', _fbListeners[path]);
+  }
+  const handler = function(snap) {
+    const val = snap.val();
+    _memSet(path, val);
+    cb(val);
+  };
+  _fbListeners[path] = handler;
+  fbRef(path).on('value', handler);
+}
+
+// ── MEMÓRIA LOCAL (cache) ─────────────────────────────────
+let _memDB = {};
+
+function _memGet(path) {
+  if (!path) return _memDB;
+  const parts = path.split('/');
+  let cur = _memDB;
+  for (const p of parts) {
+    if (cur == null || typeof cur !== 'object') return null;
+    cur = cur[p] !== undefined ? cur[p] : null;
+  }
+  return cur;
+}
+
+function _memSet(path, val) {
+  if (!path) { _memDB = val || {}; return; }
+  const parts = path.split('/');
+  let cur = _memDB;
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (cur[parts[i]] == null || typeof cur[parts[i]] !== 'object') cur[parts[i]] = {};
+    cur = cur[parts[i]];
+  }
+  const last = parts[parts.length - 1];
+  if (val === null || val === undefined) delete cur[last];
+  else cur[last] = val;
+}
+
+
+// ── STATE LOCAL ─── (mantém cache em memória para acesso síncrono)
+let semanaAtualId = null;
+let semanaAtual   = null;
+let todasSemanas  = {};
+
+
+// ── LOGIN ─────────────────────────────────────────────────
+const SENHA = 'gepescados';
+
+window.doLogin = function() {
+  var inp = document.getElementById('senha-input');
+  var v = inp ? inp.value : '';
+  if (v !== SENHA) {
+    var errEl = document.getElementById('login-error');
+    if (errEl) { errEl.style.display = 'flex'; errEl.textContent = 'Senha incorreta. Tente novamente.'; }
+    if (inp) inp.value = '';
+    return;
+  }
+  var errEl2 = document.getElementById('login-error');
+  if (errEl2) errEl2.style.display = 'none';
+  var ls = document.getElementById('login-screen');
+  if (ls) { ls.style.opacity = '0'; ls.style.pointerEvents = 'none'; setTimeout(function(){ ls.style.display = 'none'; }, 350); }
+  var ap = document.getElementById('app');
+  if (ap) { ap.style.display = 'flex'; }
+  iniciarApp();
+};
+
+window.doLogout = function() {
+  var ls = document.getElementById('login-screen');
+  if (ls) { ls.style.display = 'flex'; ls.style.opacity = '1'; ls.style.pointerEvents = ''; }
+  var ap = document.getElementById('app');
+  if (ap) ap.style.display = 'none';
+  var inp = document.getElementById('senha-input');
+  if (inp) inp.value = '';
+};
+
+// ── INIT APP ──────────────────────────────────────────────
+// localStorage removido — usando Firebase
+
+function iniciarApp() {
+  // Mostra loading
+  mostrarLoading(true);
+
+  // Timeout de segurança: se Firebase não responder em 8s, libera o app
+  var _initTimeout = setTimeout(function() {
+    mostrarLoading(false);
+    renderAll();
+  }, 8000);
+
+  // Ouve semanaAtualId no Firebase
+  dbListen('semanaAtualId', function(val) {
+    clearTimeout(_initTimeout);
+    semanaAtualId = val || null;
+    if (!semanaAtualId) {
+      semanaAtual = null;
+      mostrarLoading(false);
+      dbListen('semanas', function(v) { todasSemanas = v || {}; renderAll(); });
+      return;
+    }
+    // Verifica status da pescaria atual
+    dbListen('semanas/' + semanaAtualId, function(dadosSem) {
+      if (!dadosSem || dadosSem.status === 'encerrada') {
+        semanaAtual = null;
+        mostrarLoading(false);
+        dbListen('semanas', function(v) { todasSemanas = v || {}; renderAll(); });
+        return;
+      }
+      _registrarListenersPescaria();
+      mostrarLoading(false);
+    });
+  });
+}
+
+function _registrarListenersPescaria() {
+  dbListen(`semanas/${semanaAtualId}`, val => {
+    if (!val) {
+      semanaAtual = { label: '', pedidos: {}, lotes: {}, status: 'ativa' };
+    } else {
+      // Mescla dados do Firebase com cache local para não perder itens recém-adicionados
+      const localLotes   = (semanaAtual && semanaAtual.lotes)   || {};
+      const localPedidos = (semanaAtual && semanaAtual.pedidos)  || {};
+      semanaAtual = val;
+      if (!semanaAtual.status) semanaAtual.status = 'ativa';
+      // Garante que lotes/pedidos adicionados localmente estejam presentes
+      semanaAtual.lotes   = Object.assign({}, localLotes,   val.lotes   || {});
+      semanaAtual.pedidos = Object.assign({}, localPedidos, val.pedidos || {});
+    }
+    renderAll();
+  });
+
+  dbListen('semanas', val => {
+    todasSemanas = val || {};
+    renderAll();
+  });
+}
+
+function criarNovaSemanaDB(nomeCustom) {
+  const agora = new Date();
+  const label = nomeCustom || `Pescaria ${String(agora.getDate()).padStart(2,'0')}/${String(agora.getMonth()+1).padStart(2,'0')}/${agora.getFullYear()}`;
+  const nova = { label, inicio: agora.toISOString(), pedidos: {}, lotes: {}, status: 'ativa' };
+  const r = dbPush('semanas', nova);
+  return r.key;
+}
+
+// ── PEDIDOS ───────────────────────────────────────────────
+window.addPedido = function() {
+  const nome    = document.getElementById('p-nome').value.trim();
+  const caixas  = parseFloat(document.getElementById('p-caixas').value);
+  const tipo    = document.getElementById('p-tipo').value;
+  const contato = document.getElementById('p-contato').value.trim();
+  const obs     = document.getElementById('p-obs').value.trim();
+
+  if (!semanaAtualId) { alert('Nenhuma pescaria ativa. Inicie uma pescaria primeiro.'); return; }
+  if (!tipo || tipo === "") { alert('Selecione um tipo de camarão vindo do estoque atual.'); return; }
+  if (!nome || !caixas || caixas <= 0) { alert('Preencha nome e quantidade de caixas.'); return; }
+
+  const novoPedido = {
+    nome, caixas, kg: caixas * KG_POR_CAIXA, tipo, contato, obs, entregue: 0, status: 'pendente',
+    criadoEm: new Date().toISOString()
+  };
+  const resultado = dbPush(`semanas/${semanaAtualId}/pedidos`, novoPedido);
+
+  // Atualiza semanaAtual em memória imediatamente (não espera resposta do Firebase)
+  if (!semanaAtual.pedidos) semanaAtual.pedidos = {};
+  semanaAtual.pedidos[resultado.key] = novoPedido;
+
+  ['p-nome','p-caixas','p-contato','p-obs'].forEach(id => document.getElementById(id).value = '');
+  renderAll();
+};
+
+window.removerPedido = function(id) {
+  if (!confirm('Remover este pedido?')) return;
+  dbRemove(`semanas/${semanaAtualId}/pedidos/${id}`);
+};
+
+// ── ESTOQUE (Lotes) ──────────────────────────────────────
+window.addLote = function() {
+  const caixas = parseInt(document.getElementById('e-caixas').value);
+  const tipo   = document.getElementById('e-tipo').value.trim();
+  const data   = document.getElementById('e-data').value;
+  const obs    = document.getElementById('e-obs').value.trim();
+
+  if (!semanaAtualId) { alert('Nenhuma pescaria ativa. Inicie uma pescaria primeiro.'); return; }
+  if (!caixas || caixas <= 0) { alert('Informe a quantidade de caixas.'); return; }
+  if (!tipo)                  { alert('Informe a descrição/tamanho do camarão (ex: Camarão de 20g).'); return; }
+
+  const novoLote = { caixas, tipo, data, obs, criadoEm: new Date().toISOString() };
+  const resultado = dbPush(`semanas/${semanaAtualId}/lotes`, novoLote);
+
+  // Atualiza semanaAtual em memória imediatamente (não espera resposta do Firebase)
+  if (!semanaAtual.lotes) semanaAtual.lotes = {};
+  semanaAtual.lotes[resultado.key] = novoLote;
+
+  // Limpa os campos
+  document.getElementById('e-caixas').value = '';
+  document.getElementById('e-obs').value = '';
+  document.getElementById('e-tipo').value = '';
+
+  renderAll();
+};
+
+window.removerLote = function(id) {
+  if (!confirm('Remover este lote do estoque?')) return;
+  dbRemove(`semanas/${semanaAtualId}/lotes/${id}`);
+};
+
+// ── ENTREGAS ──────────────────────────────────────────────
+window.entregarTudo = function(id) {
+  const p = (semanaAtual.pedidos || {})[id];
+  if (!p) return;
+  const restCaixas = p.caixas - (p.entregue || 0);
+  if (caixasDisponiveis() < restCaixas) { alert('Estoque insuficiente para essa entrega.'); return; }
+  
+  p.entregue = p.caixas;
+  p.status = 'entregue';
+  dbSet(`semanas/${semanaAtualId}/pedidos/${id}`, p);
+};
+
+window.entregarParcial = function(id) {
+  const p = (semanaAtual.pedidos || {})[id];
+  if (!p) return;
+  const restCaixas = p.caixas - (p.entregue || 0);
+  const qtd = parseFloat(prompt(`Entregar para ${p.nome}\nRestante: ${restCaixas} caixa(s)\n\nQuantas caixas entregar agora?`));
+  if (!qtd || qtd <= 0) return;
+  if (qtd > restCaixas) { alert('Valor maior que o restante pendente.'); return; }
+  if (caixasDisponiveis() < qtd) { alert('Estoque insuficiente em caixas.'); return; }
+  
+  p.entregue = (p.entregue || 0) + qtd;
+  p.status = p.entregue >= p.caixas ? 'entregue' : 'parcial';
+  dbSet(`semanas/${semanaAtualId}/pedidos/${id}`, p);
+};
+
+window.desfazerEntrega = function(id) {
+  if (!confirm('Desfazer entrega deste pedido?')) return;
+  const p = (semanaAtual.pedidos || {})[id];
+  if (!p) return;
+  p.entregue = 0;
+  p.status = 'pendente';
+  dbSet(`semanas/${semanaAtualId}/pedidos/${id}`, p);
+};
+
+// ── NOVA PESCARIA ────────────────────────────────────────
+window.abrirModalIniciarPescaria = function() {
+  document.getElementById('modal-iniciar').classList.add('open');
+  const agora = new Date();
+  document.getElementById('nova-pescaria-nome').value =
+    `Pescaria ${String(agora.getDate()).padStart(2,'0')}/${String(agora.getMonth()+1).padStart(2,'0')}/${agora.getFullYear()}`;
+};
+
+window.fecharModalIniciar = function() {
+  document.getElementById('modal-iniciar').classList.remove('open');
+};
+
+window.confirmarIniciarPescaria = function() {
+  const nome = document.getElementById('nova-pescaria-nome').value.trim();
+  if (!nome) { alert('Informe um nome para a pescaria.'); return; }
+  // Marca a pescaria atual como arquivada (se existir)
+  if (semanaAtualId && semanaAtual) {
+    const s = dbGet(`semanas/${semanaAtualId}`) || {};
+    if (s.status !== 'encerrada') { s.status = 'arquivada'; dbSet(`semanas/${semanaAtualId}`, s); }
+  }
+  semanaAtualId = criarNovaSemanaDB(nome);
+  dbSet('semanaAtualId', semanaAtualId);
+  // Popula semanaAtual imediatamente para não esperar o Firebase responder
+  semanaAtual = _memGet(`semanas/${semanaAtualId}`) || { label: nome, pedidos: {}, lotes: {}, status: 'ativa' };
+  // Re-registra listeners
+  _registrarListenersPescaria();
+  fecharModalIniciar();
+  renderAll();
+};
+
+window.encerrarPescaria = function() {
+  if (!semanaAtual) return;
+  const lotes   = Object.values(semanaAtual.lotes   || {});
+  const pedidos = Object.values(semanaAtual.pedidos || {});
+  const estCx   = lotes.reduce((a, l) => a + (l.caixas || 0), 0);
+  const entCx   = pedidos.reduce((a, p) => a + (p.entregue || 0), 0);
+  const dispCx  = Math.max(0, estCx - entCx);
+  const pendentes = pedidos.filter(p => p.status !== 'entregue');
+
+  if (dispCx > 0 || pendentes.length > 0) {
+    document.getElementById('modal-encerrar').classList.add('open');
+    let avisos = '';
+    if (dispCx > 0) avisos += `<div class="enc-aviso enc-aviso-warn">⚠ Ainda há <b>${dispCx} caixas (${dispCx*16}kg)</b> de camarão no estoque não entregues.</div>`;
+    if (pendentes.length > 0) avisos += `<div class="enc-aviso enc-aviso-warn">⚠ <b>${pendentes.length} pedido(s)</b> ainda estão pendentes ou parciais.</div>`;
+    document.getElementById('enc-avisos').innerHTML = avisos;
+  } else {
+    confirmarEncerrar();
+  }
+};
+
+window.fecharModalEncerrar = function() {
+  document.getElementById('modal-encerrar').classList.remove('open');
+};
+
+window.confirmarEncerrar = function() {
+  fecharModalEncerrar();
+  const s = dbGet(`semanas/${semanaAtualId}`) || {};
+  s.status = 'encerrada';
+  s.encerradoEm = new Date().toISOString();
+  dbSet(`semanas/${semanaAtualId}`, s);
+  // Mostra tela de início após encerrar
+  semanaAtual = null;
+  renderAll();
+};
+
+window.novaSemana = function() {
+  window.abrirModalIniciarPescaria();
+};
+
+// ── HELPERS AUXILIARES ────────────────────────────────────
+function pedidosArray() { return Object.entries(semanaAtual?.pedidos || {}).map(([id, p]) => ({ ...p, id })); }
+function lotesArray() { return Object.entries(semanaAtual?.lotes || {}).map(([id, l]) => ({ ...l, id })); }
+function totalCaixasEstoque() { return lotesArray().reduce((s, l) => s + (l.caixas || 0), 0); }
+function caixasDisponiveis() {
+  const entregues = pedidosArray().reduce((s, p) => s + (p.entregue || 0), 0);
+  return Math.max(0, totalCaixasEstoque() - entregues);
+}
+function badge(s) {
+  if (s === 'entregue') return '<span class="badge badge-ok">✓ Entregue</span>';
+  if (s === 'parcial')  return '<span class="badge badge-parc">⟳ Parcial</span>';
+  return '<span class="badge badge-pend">● Pendente</span>';
+}
+
+// ── TABS ──────────────────────────────────────────────────
+window.showTab = function(t, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + t).classList.add('active');
+  if (btn) btn.classList.add('active');
+  renderAll();
+};
+
+// ── RENDERIZADOR GERAL DA INTERFACE ───────────────────────
+function renderAll() {
+  if (!semanaAtual) {
+    // sem pescaria: mostra painel de início
+    const pi = document.getElementById('painel-inicio');
+    const pa = document.getElementById('painel-resumo-ativo');
+    if (pi) pi.style.display = 'block';
+    if (pa) pa.style.display = 'none';
+    return;
+  }
+  const statusPescaria = semanaAtual.status || 'ativa';
+  const encerrada = statusPescaria === 'encerrada';
+  // Mostra/oculta painéis de início
+  const pi = document.getElementById('painel-inicio');
+  const pa = document.getElementById('painel-resumo-ativo');
+  if (pi) pi.style.display = 'none';
+  if (pa) pa.style.display = 'block';
+  const encDiv = document.getElementById('resumo-status-encerrada');
+  if (encDiv) encDiv.style.display = encerrada ? 'block' : 'none';
+  const tituloDiv = document.getElementById('resumo-titulo');
+  if (tituloDiv) tituloDiv.textContent = encerrada ? 'Pescaria Encerrada' : 'Resumo da Pescaria';
+  const pedidos       = pedidosArray();
+  const lotes         = lotesArray();
+  const totalCaixas   = pedidos.reduce((a, p) => a + (p.caixas || 0), 0);
+  const totalEnt      = pedidos.reduce((a, p) => a + (p.entregue || 0), 0);
+  const estCaixas     = totalCaixasEstoque();
+  const dispCaixas    = caixasDisponiveis();
+  const sobra         = Math.max(0, estCaixas - totalCaixas);
+  const pendentes     = pedidos.filter(p => p.status !== 'entregue');
+  const concluidos    = pedidos.filter(p => p.status === 'entregue');
+  const temEstoque    = lotes.length > 0;
+
+  // Topbar: label + status pescaria
+  const statusPesc = semanaAtual.status || 'ativa';
+  const isEncerrada = statusPesc === 'encerrada';
+  const statusBadgeHtml = isEncerrada
+    ? '<span class="pesc-badge pesc-encerrada">🔴 Encerrada</span>'
+    : '<span class="pesc-badge pesc-ativa">🟢 Pescaria Ativa</span>';
+  document.getElementById('top-semana').innerHTML = `<span style="font-size:12px;opacity:0.8">${semanaAtual.label || ''}</span>`;
+  document.getElementById('top-status-badge').innerHTML = statusBadgeHtml;
+  document.getElementById('btn-encerrar').style.display = isEncerrada ? 'none' : 'flex';
+  document.getElementById('btn-nova-pescaria').style.display = isEncerrada ? 'flex' : 'none';
+  // Bloqueia forms se encerrada
+  ['form-pedido','form-estoque'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.opacity = isEncerrada ? '0.4' : '1';
+    if (el) el.style.pointerEvents = isEncerrada ? 'none' : '';
+  });
+
+  // Resumo
+  document.getElementById('resumo-sub').textContent =
+    (semanaAtual.label || '') + (temEstoque ? ` · Estoque total: ${estCaixas} cx (${estCaixas * KG_POR_CAIXA}kg)` : ' · Nenhum estoque inserido');
+
+  document.getElementById('res-metrics').innerHTML = `
+    <div class="metric"><div class="m-val">${estCaixas}<sup>cx</sup></div><div class="m-lbl">No estoque</div></div>
+    <div class="metric"><div class="m-val">${totalCaixas}<sup>cx</sup></div><div class="m-lbl">Total separado</div></div>
+    <div class="metric"><div class="m-val">${totalEnt}<sup>cx</sup></div><div class="m-lbl">Entregue</div></div>
+    <div class="metric${sobra > 0 ? ' warn' : (dispCaixas === 0 && temEstoque ? ' danger' : '')}"><div class="m-val">${dispCaixas}<sup>cx</sup></div><div class="m-lbl">Disponível</div></div>
+  `;
+
+  let alerts = '';
+  if (!temEstoque)
+    alerts += `<div class="alert alert-warn">⚠ O estoque está zerado. Vá até a aba <b>Estoque</b> e adicione os camarões que chegaram primeiro.</div>`;
+  else if (totalCaixas > estCaixas)
+    alerts += `<div class="alert alert-danger">⚠ Alerta! Os pedidos separados excedem o total do estoque lançado em <b>${totalCaixas - estCaixas} cx</b>.</div>`;
+  else if (sobra > 0)
+    alerts += `<div class="alert alert-ok">✓ Há uma sobra de de <b>${sobra} cx</b> livres no estoque aguardando novos clientes.</div>`;
+  document.getElementById('res-alerts').innerHTML = alerts;
+
+  const resLista = pedidos.length ? pedidos.map(p => {
+    const pct = p.caixas > 0 ? Math.round(((p.entregue || 0) / p.caixas) * 100) : 0;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid rgba(0,201,167,0.06)">
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:14px">${p.nome}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:1px">${p.tipo}</div>
+        <div class="prog-bg"><div class="prog${pct===100?'':pct>0?' warn':''}" style="width:${pct}%"></div></div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--accent)">${p.entregue||0}/${p.caixas} cx</div>
+        <div style="font-size:11px;color:var(--text3)">${(p.entregue||0)*KG_POR_CAIXA}/${p.caixas*KG_POR_CAIXA}kg</div>
+        <div style="margin-top:4px">${badge(p.status)}</div>
+      </div>
+    </div>`;
+  }).join('') : '<div class="empty">Nenhum pedido lançado na semana atual.</div>';
+  document.getElementById('res-lista').innerHTML = resLista;
+
+  // Atualiza as opções do Select de Pedidos baseando-se estritamente no Estoque adicionado
+  const selectTipoPedido = document.getElementById('p-tipo');
+  if (selectTipoPedido) {
+    if (lotes.length > 0) {
+      const tiposDeEstoque = [...new Set(lotes.map(l => l.tipo))];
+      selectTipoPedido.innerHTML = tiposDeEstoque.map(t => `<option value="${t}">${t}</option>`).join('');
+    } else {
+      selectTipoPedido.innerHTML = '<option value="">— adicione lotes no estoque primeiro —</option>';
+    }
+  }
+
+  document.getElementById('lista-pedidos').innerHTML = pedidos.length
+    ? pedidos.map(p => `
+      <div class="item">
+        <div class="item-top">
+          <div style="flex:1">
+            <div class="item-nome">${p.nome}</div>
+            <div class="item-info"><span style="color:var(--accent);font-weight:600">${p.tipo}</span>${p.contato ? ' · ' + p.contato : ''}${p.obs ? ' · ' + p.obs : ''}</div>
+            <div class="item-info" style="color:var(--text3)">${p.caixas * KG_POR_CAIXA}kg total</div>
+          </div>
+          <div class="item-kg">${p.caixas} cx</div>
+          ${badge(p.status)}
+          <button class="btn btn-danger btn-sm" onclick="removerPedido('${p.id}')">✕</button>
+        </div>
+      </div>`).join('')
+    : '<div class="empty">Nenhum cliente associado nesta semana.</div>';
+
+  // Estoque
+  let estHtml = '';
+  if (lotes.length > 0) {
+    estHtml = `<div class="card">
+      <div class="card-header"><span class="card-title">📦 Lotes Ativos na Semana</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:16px">
+        <div class="metric"><div class="m-val">${estCaixas}<sup>cx</sup></div><div class="m-lbl">Total caixas</div></div>
+        <div class="metric"><div class="m-val">${estCaixas * KG_POR_CAIXA}<sup>kg</sup></div><div class="m-lbl">Peso Total</div></div>
+        <div class="metric"><div class="m-val">${totalEnt}<sup>cx</sup></div><div class="m-lbl">Entregue</div></div>
+        <div class="metric"><div class="m-val">${dispCaixas}<sup>cx</sup></div><div class="m-lbl">Disponível</div></div>
+      </div>
+      ${lotes.map(l => `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border)">
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:15px;color:var(--accent)">${l.tipo}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">
+              ${l.caixas} caixas (${l.caixas * KG_POR_CAIXA}kg) 
+              ${l.data ? ' · Chegada: ' + l.data : ''}${l.obs ? ' · ' + l.obs : ''}
+            </div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="removerLote('${l.id}')">✕</button>
+        </div>`).join('')}
+    </div>`;
+  }
+  document.getElementById('estoque-status').innerHTML = estHtml || '<div class="empty">Estoque vazio. Adicione um lote acima.</div>';
+
+  // Entregas
+  let entHtml = '';
+  if (!pedidos.length) {
+    entHtml = '<div class="empty">Aguardando lançamento de pedidos para controle de entregas.</div>';
+  } else {
+    if (pendentes.length) {
+      entHtml += pendentes.map(p => {
+        const restCaixas = (p.caixas || 0) - (p.entregue || 0);
+        return `<div class="item">
+          <div class="item-top">
+            <div style="flex:1">
+              <div class="item-nome">${p.nome}</div>
+              <div class="item-info"><b style="color:var(--accent)">${p.tipo}</b> ${p.obs ? ' · ' + p.obs : ''} · Falta: <b style="color:var(--accent)">${restCaixas} cx (${restCaixas * KG_POR_CAIXA}kg)</b></div>
+            </div>
+            ${badge(p.status)}
+          </div>
+          <div class="item-actions">
+            <button class="btn btn-success" onclick="entregarTudo('${p.id}')">✓ Entregar tudo (${restCaixas} cx)</button>
+            <button class="btn" onclick="entregarParcial('${p.id}')">⟳ Parcial</button>
+            ${(p.entregue || 0) > 0 ? `<button class="btn btn-danger btn-sm" onclick="desfazerEntrega('${p.id}')">↩ Desfazer</button>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+    if (concluidos.length) {
+      entHtml += `<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin:1rem 0 8px">Já Entregues</div>`;
+      entHtml += concluidos.map(p => `
+        <div class="item" style="opacity:0.55">
+          <div class="item-top">
+            <div style="flex:1"><div class="item-nome">${p.nome}</div><div class="item-info">${p.tipo} · ${p.caixas} cx entregues</div></div>
+            ${badge(p.status)}
+            <button class="btn btn-warn btn-sm" onclick="desfazerEntrega('${p.id}')">↩ Cancelar Entrega</button>
+          </div>
+        </div>`).join('');
+    }
+  }
+  document.getElementById('lista-entregas').innerHTML = entHtml;
+
+  // Histórico
+  const semanasArr = Object.entries(todasSemanas)
+    .map(([id, s]) => ({ ...s, id }))
+    .sort((a, b) => new Date(b.inicio || 0) - new Date(a.inicio || 0));
+
+  const histHtml = semanasArr.length
+    ? semanasArr.map(sem => {
+        const peds = Object.values(sem.pedidos || {});
+        const lots = Object.values(sem.lotes || {});
+        const tp   = peds.reduce((a, p) => a + (p.caixas || 0), 0);
+        const te   = peds.reduce((a, p) => a + (p.entregue || 0), 0);
+        const estCx = lots.reduce((a, l) => a + (l.caixas || 0), 0);
+        const isCurrent = sem.id === semanaAtualId;
+        const rows = peds.map(p => `<tr>
+          <td>${p.nome}</td><td>${p.tipo}</td>
+          <td><span class="mono">${p.caixas} cx</span></td>
+          <td><span class="mono">${p.entregue || 0} cx</span></td>
+          <td>${badge(p.status)}</td>
+        </tr>`).join('');
+        const semStatus = sem.status || 'ativa';
+        const semEncerrada = semStatus === 'encerrada';
+        const semStatusBadge = isCurrent && !semEncerrada
+          ? '<span class="badge badge-ok" style="font-size:10px">● Ativa</span>'
+          : semEncerrada
+            ? '<span class="badge" style="font-size:10px;background:rgba(255,107,107,0.15);color:#ff6b6b;border:0.5px solid rgba(255,107,107,0.3)">🔴 Encerrada</span>'
+            : '<span class="badge badge-pend" style="font-size:10px">Arquivada</span>';
+        return `<div class="hist-item${isCurrent ? ' hist-current' : ''}">
+          <div class="hist-header" onclick="this.nextElementSibling.classList.toggle('open')">
+            <div>
+              <div style="font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px">${sem.label} ${semStatusBadge}</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:2px">${peds.length} clientes · ${tp} cx pedidas · ${te} cx entregues · Estoque: ${estCx} cx${sem.encerradoEm ? ' · Encerrada em: ' + new Date(sem.encerradoEm).toLocaleDateString('pt-BR') : ''}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <button class="btn btn-sm" onclick="event.stopPropagation();gerarPDF('${sem.id}')" style="border-color:rgba(0,201,167,0.4);display:flex;align-items:center;gap:5px;white-space:nowrap">📄 PDF</button>
+              <span style="color:var(--text3);font-size:14px">▼</span>
+            </div>
+          </div>
+          <div class="hist-body">
+            ${peds.length ? `<table><thead><tr><th>Cliente</th><th>Tipo</th><th>Pedido</th><th>Entregue</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="empty" style="padding:1rem">Nenhum pedido cadastrado nessa pescaria.</div>'}
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="empty">Nenhum histórico disponível.</div>';
+  document.getElementById('lista-historico').innerHTML = histHtml;
+
+  // Relatório
+  const totalGeralEnt    = semanasArr.reduce((a, s) => a + Object.values(s.pedidos || {}).reduce((b, p) => b + (p.entregue || 0), 0), 0);
+  const totalGeralPeds   = semanasArr.reduce((a, s) => a + Object.keys(s.pedidos || {}).length, 0);
+  const todasSemanasCx   = semanasArr.map(s => Object.values(s.lotes || {}).reduce((a,l) => a+(l.caixas||0), 0));
+  const mediaEst         = todasSemanasCx.length ? todasSemanasCx.reduce((a,v)=>a+v,0) / todasSemanasCx.filter(v=>v>0).length || 0 : 0;
+
+  const clienteMap = {};
+  semanasArr.forEach(s => Object.values(s.pedidos || {}).forEach(p => {
+    if (!clienteMap[p.nome]) clienteMap[p.nome] = { caixas: 0, pedidos: 0 };
+    clienteMap[p.nome].caixas  += (p.entregue || 0);
+    clienteMap[p.nome].pedidos += 1;
+  }));
+  const topClientes = Object.entries(clienteMap).sort((a, b) => b[1].caixas - a[1].caixas).slice(0, 8);
+
+  const tipoMap = {};
+  semanasArr.forEach(s => Object.values(s.lotes || {}).forEach(l => {
+    if (!tipoMap[l.tipo]) tipoMap[l.tipo] = { caixas: 0 };
+    tipoMap[l.tipo].caixas += (l.caixas || 0);
+  }));
+
+  document.getElementById('rel-content').innerHTML = `
+    <div class="rel-grid">
+      <div class="rel-card"><div class="rel-val">${totalGeralEnt}<span style="font-size:13px">cx</span></div><div class="rel-lbl">Total entregue</div></div>
+      <div class="rel-card"><div class="rel-val">${totalGeralEnt * KG_POR_CAIXA}<span style="font-size:13px">kg</span></div><div class="rel-lbl">Kg entregues</div></div>
+      <div class="rel-card"><div class="rel-val">${totalGeralPeds}</div><div class="rel-lbl">Clientes Atendidos</div></div>
+      <div class="rel-card"><div class="rel-val">${semanasArr.length}</div><div class="rel-lbl">Semanas Registradas</div></div>
+      <div class="rel-card"><div class="rel-val">${Math.round(mediaEst)}<span style="font-size:13px">cx</span></div><div class="rel-lbl">Média estoque/Semana</div></div>
+    </div>
+    ${Object.keys(tipoMap).length ? `
+    <div class="card">
+      <div class="card-header"><span class="card-title">🦐 Volume Total por Tipo Movimentado</span></div>
+      <table>
+        <thead><tr><th>Tipo / Tamanho</th><th>Total Caixas</th><th>Kg equivalente</th></tr></thead>
+        <tbody>${Object.entries(tipoMap).sort((a,b)=>b[1].caixas-a[1].caixas).map(([tipo, d]) => `<tr>
+          <td style="font-weight:600;color:var(--accent)">${tipo}</td>
+          <td><span class="mono">${d.caixas} cx</span></td>
+          <td><span class="mono">${d.caixas * KG_POR_CAIXA}kg</span></td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>` : ''}
+    <div class="card">
+      <div class="card-header"><span class="card-title">🏆 Ranking de Clientes (Mais Compraram)</span></div>
+      ${topClientes.length ? `<table>
+        <thead><tr><th>#</th><th>Cliente</th><th>Total Entregue</th><th>Kg equiv.</th><th>Frequência</th></tr></thead>
+        <tbody>${topClientes.map(([nome, d], i) => `<tr>
+          <td style="color:var(--text2)">${i+1}</td>
+          <td style="font-weight:500">${nome}</td>
+          <td><span class="mono">${d.caixas} cx</span></td>
+          <td><span class="mono">${d.caixas * KG_POR_CAIXA}kg</span></td>
+          <td style="color:var(--text2)">${d.pedidos} semana(s)</td>
+        </tr>`).join('')}</tbody>
+      </table>` : '<div class="empty">Sem dados suficientes para ranking.</div>'}
+    </div>`;
+}
+
+
+// ── GERAÇÃO DE PDF ────────────────────────────────────────
+window.gerarPDF = function(semanaId) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  // Decide se é semana específica ou todas as semanas
+  let semanasParaExportar;
+  if (semanaId === 'todas') {
+    semanasParaExportar = Object.entries(todasSemanas)
+      .map(([id, s]) => ({ ...s, id }))
+      .sort((a, b) => new Date(b.inicio || 0) - new Date(a.inicio || 0));
+  } else {
+    const sem = todasSemanas[semanaId];
+    if (!sem) return;
+    semanasParaExportar = [{ ...sem, id: semanaId }];
+  }
+
+  const VERDE    = [0, 201, 167];
+  const ESCURO   = [10, 22, 40];
+  const CINZA    = [100, 130, 160];
+  const BRANCO   = [255, 255, 255];
+  const BGCARD   = [15, 30, 56];
+  const BGLINHA  = [18, 36, 64];
+
+  const pW = 210; // largura A4
+  const mL = 14;  // margem esquerda
+  const mR = 14;  // margem direita
+  const cW = pW - mL - mR; // largura do conteúdo
+
+  function fmt(d) {
+    if (!d) return '—';
+    const dt = new Date(d);
+    if (isNaN(dt)) return d;
+    return dt.toLocaleDateString('pt-BR');
+  }
+  function fmtDt(d) {
+    if (!d) return '—';
+    const dt = new Date(d);
+    if (isNaN(dt)) return d;
+    return dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function cabecalhoGlobal(doc) {
+    // Fundo do cabeçalho
+    doc.setFillColor(...ESCURO);
+    doc.rect(0, 0, pW, 26, 'F');
+    // Acento lateral
+    doc.setFillColor(...VERDE);
+    doc.rect(0, 0, 4, 26, 'F');
+    // Logo / título
+    doc.setTextColor(...VERDE);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('G & E Pescados', mL + 4, 11);
+    doc.setFontSize(8);
+    doc.setTextColor(...CINZA);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Painel de Movimentacoes e Vendas', mL + 4, 17);
+    // Data geração
+    const agora = new Date().toLocaleString('pt-BR');
+    doc.text('Gerado em: ' + agora, pW - mR, 17, { align: 'right' });
+    return 30; // y inicial
+  }
+
+  function rodape(doc, pageNum, totalPages) {
+    const yRod = 290;
+    doc.setDrawColor(...VERDE);
+    doc.setLineWidth(0.3);
+    doc.line(mL, yRod, pW - mR, yRod);
+    doc.setFontSize(7);
+    doc.setTextColor(...CINZA);
+    doc.text('G & E Pescados — Sistema de Gestao de Pescados', mL, yRod + 4);
+    doc.text(`Pagina ${pageNum} de ${totalPages}`, pW - mR, yRod + 4, { align: 'right' });
+  }
+
+  function blocoTitulo(doc, y, texto) {
+    doc.setFillColor(...VERDE);
+    doc.roundedRect(mL, y, cW, 8, 1, 1, 'F');
+    doc.setTextColor(...ESCURO);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text(texto.toUpperCase(), mL + 4, y + 5.5);
+    return y + 12;
+  }
+
+  function metrica(doc, x, y, w, h, val, label, cor) {
+    doc.setFillColor(...BGCARD);
+    doc.roundedRect(x, y, w, h, 2, 2, 'F');
+    doc.setDrawColor(...VERDE);
+    doc.setLineWidth(0.2);
+    doc.roundedRect(x, y, w, h, 2, 2, 'S');
+    doc.setTextColor(...(cor || VERDE));
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(String(val), x + w / 2, y + h / 2 + 1, { align: 'center' });
+    doc.setFontSize(6.5);
+    doc.setTextColor(...CINZA);
+    doc.setFont('helvetica', 'normal');
+    doc.text(label.toUpperCase(), x + w / 2, y + h - 3, { align: 'center' });
+  }
+
+  // ── RENDERIZA CADA SEMANA ──────────────────────────────
+  let primeiraPage = true;
+  semanasParaExportar.forEach((sem, idx) => {
+    if (!primeiraPage) doc.addPage();
+    primeiraPage = false;
+
+    let y = cabecalhoGlobal(doc);
+
+    // Título da semana
+    doc.setFillColor(...BGCARD);
+    doc.roundedRect(mL, y, cW, 12, 2, 2, 'F');
+    doc.setTextColor(...VERDE);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text(sem.label || 'Semana sem nome', mL + 5, y + 8);
+    if (sem.id === semanaAtualId) {
+      doc.setFillColor(...VERDE);
+      doc.roundedRect(pW - mR - 24, y + 3, 22, 6, 1, 1, 'F');
+      doc.setTextColor(...ESCURO);
+      doc.setFontSize(7);
+      doc.text('SEMANA ATUAL', pW - mR - 13, y + 7.2, { align: 'center' });
+    }
+    if (sem.inicio) {
+      doc.setFontSize(7);
+      doc.setTextColor(...CINZA);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Inicio: ' + fmtDt(sem.inicio), mL + 5, y + 13);
+    }
+    y += 20;
+
+    const lotes   = Object.values(sem.lotes   || {});
+    const pedidos = Object.values(sem.pedidos  || {});
+    const estCx   = lotes.reduce((a, l)   => a + (l.caixas    || 0), 0);
+    const totPed  = pedidos.reduce((a, p) => a + (p.caixas    || 0), 0);
+    const totEnt  = pedidos.reduce((a, p) => a + (p.entregue  || 0), 0);
+    const disp    = Math.max(0, estCx - totEnt);
+
+    // Métricas resumo
+    const mW = (cW - 9) / 4;
+    const mH = 20;
+    metrica(doc, mL,              y, mW, mH, estCx  + ' cx', 'Estoque Total');
+    metrica(doc, mL + mW + 3,    y, mW, mH, totPed + ' cx', 'Total Pedido');
+    metrica(doc, mL + (mW+3)*2,  y, mW, mH, totEnt + ' cx', 'Entregue');
+    metrica(doc, mL + (mW+3)*3,  y, mW, mH, disp   + ' cx', 'Disponivel', disp > 0 ? [255, 196, 61] : VERDE);
+    y += mH + 8;
+
+    // ── SEÇÃO 1: ESTOQUE / LOTES ─────────────────────────
+    y = blocoTitulo(doc, y, '1. Estoque Recebido (Lotes)');
+
+    if (lotes.length) {
+      doc.autoTable({
+        startY: y,
+        margin: { left: mL, right: mR },
+        head: [['Descricao / Tipo', 'Caixas', 'Peso (kg)', 'Data Chegada', 'Observacao']],
+        body: lotes.map(l => [
+          l.tipo || '—',
+          l.caixas + ' cx',
+          (l.caixas * KG_POR_CAIXA) + ' kg',
+          fmt(l.data),
+          l.obs || '—'
+        ]),
+        foot: [[{ content: 'TOTAL', styles: { fontStyle: 'bold' } },
+                { content: estCx + ' cx', styles: { fontStyle: 'bold' } },
+                { content: (estCx * KG_POR_CAIXA) + ' kg', styles: { fontStyle: 'bold' } },
+                '', '']],
+        styles:         { fontSize: 8, cellPadding: 3, textColor: [220, 235, 255], fillColor: BGLINHA, lineColor: [0, 100, 80], lineWidth: 0.1 },
+        headStyles:     { fillColor: ESCURO, textColor: VERDE, fontStyle: 'bold', fontSize: 8 },
+        footStyles:     { fillColor: ESCURO, textColor: VERDE, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: BGCARD },
+        columnStyles:   { 0: { cellWidth: 55 }, 1: { cellWidth: 22, halign: 'center' }, 2: { cellWidth: 25, halign: 'center' }, 3: { cellWidth: 28, halign: 'center' } },
+        theme: 'grid'
+      });
+      y = doc.lastAutoTable.finalY + 10;
+    } else {
+      doc.setFontSize(8); doc.setTextColor(...CINZA);
+      doc.text('Nenhum lote de estoque registrado.', mL + 4, y + 5);
+      y += 12;
+    }
+
+    // Verifica se precisa de nova página
+    if (y > 230) { doc.addPage(); y = cabecalhoGlobal(doc); }
+
+    // ── SEÇÃO 2: PEDIDOS ──────────────────────────────────
+    y = blocoTitulo(doc, y, '2. Pedidos de Clientes');
+
+    if (pedidos.length) {
+      doc.autoTable({
+        startY: y,
+        margin: { left: mL, right: mR },
+        head: [['Cliente', 'Tipo / Camarao', 'Pedido', 'Entregue', 'Restante', 'Status', 'Contato', 'Obs.']],
+        body: pedidos.map(p => {
+          const rest = (p.caixas || 0) - (p.entregue || 0);
+          const sLabel = p.status === 'entregue' ? 'Entregue' : p.status === 'parcial' ? 'Parcial' : 'Pendente';
+          return [
+            p.nome || '—',
+            p.tipo || '—',
+            (p.caixas || 0) + ' cx\n' + ((p.caixas || 0) * KG_POR_CAIXA) + ' kg',
+            (p.entregue || 0) + ' cx\n' + ((p.entregue || 0) * KG_POR_CAIXA) + ' kg',
+            rest + ' cx',
+            sLabel,
+            p.contato || '—',
+            p.obs || '—'
+          ];
+        }),
+        foot: [[
+          { content: 'TOTAIS', styles: { fontStyle: 'bold' } }, '',
+          { content: totPed + ' cx / ' + totPed * KG_POR_CAIXA + ' kg', styles: { fontStyle: 'bold' } },
+          { content: totEnt + ' cx / ' + totEnt * KG_POR_CAIXA + ' kg', styles: { fontStyle: 'bold' } },
+          { content: (totPed - totEnt) + ' cx', styles: { fontStyle: 'bold' } },
+          '', '', ''
+        ]],
+        styles: { fontSize: 7.5, cellPadding: 2.5, textColor: [220, 235, 255], fillColor: BGLINHA, lineColor: [0, 100, 80], lineWidth: 0.1 },
+        headStyles: { fillColor: ESCURO, textColor: VERDE, fontStyle: 'bold', fontSize: 7.5 },
+        footStyles: { fillColor: ESCURO, textColor: VERDE, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: BGCARD },
+        columnStyles: {
+          0: { cellWidth: 30 }, 1: { cellWidth: 28 },
+          2: { cellWidth: 20, halign: 'center' }, 3: { cellWidth: 22, halign: 'center' },
+          4: { cellWidth: 18, halign: 'center' }, 5: { cellWidth: 18, halign: 'center' }
+        },
+        didParseCell: function(data) {
+          if (data.section === 'body' && data.column.index === 5) {
+            const v = data.cell.raw;
+            if (v === 'Entregue') data.cell.styles.textColor = [0, 201, 167];
+            else if (v === 'Parcial') data.cell.styles.textColor = [100, 160, 255];
+            else data.cell.styles.textColor = [255, 196, 61];
+          }
+        },
+        theme: 'grid'
+      });
+      y = doc.lastAutoTable.finalY + 10;
+    } else {
+      doc.setFontSize(8); doc.setTextColor(...CINZA);
+      doc.text('Nenhum pedido registrado nesta semana.', mL + 4, y + 5);
+      y += 12;
+    }
+
+    // Verifica se precisa de nova página
+    if (y > 220) { doc.addPage(); y = cabecalhoGlobal(doc); }
+
+    // ── SEÇÃO 3: RESUMO DE ENTREGAS ────────────────────────
+    y = blocoTitulo(doc, y, '3. Resumo de Entregas por Status');
+
+    const entregues  = pedidos.filter(p => p.status === 'entregue');
+    const parciais   = pedidos.filter(p => p.status === 'parcial');
+    const pendentes  = pedidos.filter(p => p.status === 'pendente');
+
+    const linhasStatus = [];
+    if (entregues.length)  linhasStatus.push([pedidos.filter(p=>p.status==='entregue').length + ' pedidos', 'ENTREGUE', entregues.reduce((a,p)=>a+(p.caixas||0),0) + ' cx', entregues.reduce((a,p)=>a+(p.entregue||0),0) + ' cx entregues']);
+    if (parciais.length)   linhasStatus.push([pedidos.filter(p=>p.status==='parcial').length  + ' pedidos', 'PARCIAL',  parciais.reduce((a,p)=>a+(p.caixas||0),0)  + ' cx', parciais.reduce((a,p)=>a+(p.entregue||0),0)  + ' cx entregues']);
+    if (pendentes.length)  linhasStatus.push([pedidos.filter(p=>p.status==='pendente').length + ' pedidos', 'PENDENTE', pendentes.reduce((a,p)=>a+(p.caixas||0),0) + ' cx', '0 cx entregues']);
+    if (!linhasStatus.length) linhasStatus.push(['—', '—', '—', '—']);
+
+    doc.autoTable({
+      startY: y,
+      margin: { left: mL, right: mR },
+      head: [['Quantidade', 'Status', 'Caixas Pedidas', 'Caixas Entregues']],
+      body: linhasStatus,
+      styles: { fontSize: 8, cellPadding: 3, textColor: [220, 235, 255], fillColor: BGLINHA, lineColor: [0, 100, 80], lineWidth: 0.1 },
+      headStyles: { fillColor: ESCURO, textColor: VERDE, fontStyle: 'bold', fontSize: 8 },
+      alternateRowStyles: { fillColor: BGCARD },
+      columnStyles: { 1: { halign: 'center', fontStyle: 'bold' }, 2: { halign: 'center' }, 3: { halign: 'center' } },
+      didParseCell: function(data) {
+        if (data.section === 'body' && data.column.index === 1) {
+          const v = data.cell.raw;
+          if (v === 'ENTREGUE') data.cell.styles.textColor = [0, 201, 167];
+          else if (v === 'PARCIAL') data.cell.styles.textColor = [100, 160, 255];
+          else if (v === 'PENDENTE') data.cell.styles.textColor = [255, 196, 61];
+        }
+      },
+      theme: 'grid'
+    });
+    y = doc.lastAutoTable.finalY + 10;
+
+    // ── SEÇÃO 4: ANÁLISE POR TIPO ──────────────────────────
+    if (y > 220) { doc.addPage(); y = cabecalhoGlobal(doc); }
+    y = blocoTitulo(doc, y, '4. Analise por Tipo de Camarao');
+
+    const tipoAnalise = {};
+    lotes.forEach(l => {
+      if (!tipoAnalise[l.tipo]) tipoAnalise[l.tipo] = { estoque: 0, pedido: 0, entregue: 0 };
+      tipoAnalise[l.tipo].estoque += (l.caixas || 0);
+    });
+    pedidos.forEach(p => {
+      if (!tipoAnalise[p.tipo]) tipoAnalise[p.tipo] = { estoque: 0, pedido: 0, entregue: 0 };
+      tipoAnalise[p.tipo].pedido   += (p.caixas   || 0);
+      tipoAnalise[p.tipo].entregue += (p.entregue || 0);
+    });
+
+    const tipoLinhas = Object.entries(tipoAnalise).map(([tipo, d]) => [
+      tipo,
+      d.estoque + ' cx / ' + d.estoque * KG_POR_CAIXA + ' kg',
+      d.pedido  + ' cx / ' + d.pedido  * KG_POR_CAIXA + ' kg',
+      d.entregue + ' cx / ' + d.entregue * KG_POR_CAIXA + ' kg',
+      Math.max(0, d.estoque - d.entregue) + ' cx'
+    ]);
+
+    if (tipoLinhas.length) {
+      doc.autoTable({
+        startY: y,
+        margin: { left: mL, right: mR },
+        head: [['Tipo / Tamanho', 'Em Estoque', 'Total Pedido', 'Entregue', 'Saldo']],
+        body: tipoLinhas,
+        styles: { fontSize: 8, cellPadding: 3, textColor: [220, 235, 255], fillColor: BGLINHA, lineColor: [0, 100, 80], lineWidth: 0.1 },
+        headStyles: { fillColor: ESCURO, textColor: VERDE, fontStyle: 'bold', fontSize: 8 },
+        alternateRowStyles: { fillColor: BGCARD },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 45 }, 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'center' } },
+        theme: 'grid'
+      });
+      y = doc.lastAutoTable.finalY + 10;
+    } else {
+      doc.setFontSize(8); doc.setTextColor(...CINZA);
+      doc.text('Sem dados de tipo para exibir.', mL + 4, y + 5);
+      y += 12;
+    }
+  });
+
+  // ── PÁGINA FINAL: CONSOLIDADO GERAL ────────────────────
+  if (semanaId === 'todas' && semanasParaExportar.length > 1) {
+    doc.addPage();
+    let y = cabecalhoGlobal(doc);
+
+    doc.setFillColor(...BGCARD);
+    doc.roundedRect(mL, y, cW, 10, 2, 2, 'F');
+    doc.setTextColor(...VERDE);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Consolidado Geral — Todas as Semanas', mL + 5, y + 7);
+    y += 16;
+
+    // Totais gerais
+    const totGEst  = semanasParaExportar.reduce((a, s) => a + Object.values(s.lotes   || {}).reduce((b,l) => b+(l.caixas||0), 0), 0);
+    const totGPed  = semanasParaExportar.reduce((a, s) => a + Object.values(s.pedidos || {}).reduce((b,p) => b+(p.caixas||0), 0), 0);
+    const totGEnt  = semanasParaExportar.reduce((a, s) => a + Object.values(s.pedidos || {}).reduce((b,p) => b+(p.entregue||0), 0), 0);
+    const nClients = new Set(semanasParaExportar.flatMap(s => Object.values(s.pedidos||{}).map(p=>p.nome))).size;
+
+    const mW2 = (cW - 6) / 4;
+    metrica(doc, mL,              y, mW2, 22, totGEst + ' cx', 'Total Estoque Geral');
+    metrica(doc, mL + mW2 + 2,   y, mW2, 22, totGPed + ' cx', 'Total Pedidos Geral');
+    metrica(doc, mL + (mW2+2)*2, y, mW2, 22, totGEnt + ' cx', 'Total Entregue Geral');
+    metrica(doc, mL + (mW2+2)*3, y, mW2, 22, nClients, 'Clientes Unicos');
+    y += 30;
+
+    // Tabela resumo por semana
+    y = blocoTitulo(doc, y, 'Resumo por Semana');
+    doc.autoTable({
+      startY: y,
+      margin: { left: mL, right: mR },
+      head: [['Semana', 'Inicio', 'Lotes', 'Estoque (cx)', 'Pedidos', 'Entregue (cx)', 'Pendente (cx)']],
+      body: semanasParaExportar.map(sem => {
+        const lots = Object.values(sem.lotes   || {});
+        const peds = Object.values(sem.pedidos || {});
+        const eCx  = lots.reduce((a,l)=>a+(l.caixas||0), 0);
+        const pCx  = peds.reduce((a,p)=>a+(p.caixas||0), 0);
+        const enCx = peds.reduce((a,p)=>a+(p.entregue||0), 0);
+        return [
+          (sem.label || '—') + (sem.id === semanaAtualId ? ' (atual)' : ''),
+          fmt(sem.inicio),
+          lots.length,
+          eCx + ' / ' + eCx * KG_POR_CAIXA + 'kg',
+          peds.length,
+          enCx + ' / ' + enCx * KG_POR_CAIXA + 'kg',
+          Math.max(0, pCx - enCx) + ' cx'
+        ];
+      }),
+      styles: { fontSize: 7.5, cellPadding: 2.5, textColor: [220,235,255], fillColor: BGLINHA, lineColor: [0,100,80], lineWidth: 0.1 },
+      headStyles: { fillColor: ESCURO, textColor: VERDE, fontStyle: 'bold', fontSize: 8 },
+      alternateRowStyles: { fillColor: BGCARD },
+      columnStyles: { 0: { cellWidth: 38 }, 3: { halign:'center' }, 4: { halign:'center' }, 5: { halign:'center' }, 6: { halign:'center', textColor: [255,196,61] } },
+      theme: 'grid'
+    });
+    y = doc.lastAutoTable.finalY + 10;
+
+    // Ranking clientes
+    y = blocoTitulo(doc, y, 'Ranking de Clientes (Historico Total)');
+    const clienteMap2 = {};
+    semanasParaExportar.forEach(s => Object.values(s.pedidos||{}).forEach(p => {
+      if (!clienteMap2[p.nome]) clienteMap2[p.nome] = { pedido: 0, entregue: 0, semanas: 0 };
+      clienteMap2[p.nome].pedido   += (p.caixas   || 0);
+      clienteMap2[p.nome].entregue += (p.entregue || 0);
+      clienteMap2[p.nome].semanas  += 1;
+    }));
+    const rankClientes = Object.entries(clienteMap2).sort((a,b)=>b[1].entregue-a[1].entregue).slice(0,15);
+    if (rankClientes.length) {
+      doc.autoTable({
+        startY: y,
+        margin: { left: mL, right: mR },
+        head: [['#', 'Cliente', 'Total Pedido (cx)', 'Total Entregue (cx)', 'Kg Entregues', 'Num. Pedidos']],
+        body: rankClientes.map(([nome, d], i) => [
+          i + 1, nome,
+          d.pedido   + ' cx',
+          d.entregue + ' cx',
+          d.entregue * KG_POR_CAIXA + ' kg',
+          d.semanas
+        ]),
+        styles: { fontSize: 8, cellPadding: 3, textColor: [220,235,255], fillColor: BGLINHA, lineColor: [0,100,80], lineWidth: 0.1 },
+        headStyles: { fillColor: ESCURO, textColor: VERDE, fontStyle: 'bold', fontSize: 8 },
+        alternateRowStyles: { fillColor: BGCARD },
+        columnStyles: { 0: { cellWidth: 10, halign:'center' }, 2: { halign:'center' }, 3: { halign:'center', textColor: [0,201,167] }, 4: { halign:'center' }, 5: { halign:'center' } },
+        theme: 'grid'
+      });
+    }
+  }
+
+  // Rodapés em todas as páginas
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    rodape(doc, i, totalPages);
+  }
+
+  // Gera nome do arquivo
+  const nomeArq = semanaId === 'todas'
+    ? `GEPescados_Historico_Completo_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.pdf`
+    : `GEPescados_${(todasSemanas[semanaId]?.label||'Semana').replace(/\s/g,'_')}_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.pdf`;
+
+  doc.save(nomeArq);
+};
+// ── INIT ─────────────────────────────────────────────────
+(function init() {
+  // Seta data padrão no campo estoque
+  var eData = document.getElementById('e-data');
+  if (eData) eData.valueAsDate = new Date();
+
+  // Wiring do login
+  var btn = document.getElementById('login-btn');
+  var inp = document.getElementById('senha-input');
+  if (btn) btn.addEventListener('click', function() { doLogin(); });
+  if (inp) inp.addEventListener('keyup', function(e) {
+    if (e.key === 'Enter' || e.keyCode === 13) doLogin();
+  });
+})();
+
+
+</script>
+</body>
+</html>
