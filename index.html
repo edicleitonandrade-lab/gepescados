@@ -196,18 +196,41 @@ td .mono{font-family:'Space Mono',monospace;color:var(--accent)}
 .modal-overlay{
   position:fixed;inset:0;z-index:200;
   background:rgba(5,14,30,0.85);backdrop-filter:blur(4px);
-  display:none;align-items:center;justify-content:center;padding:1.5rem;
+  display:none;align-items:flex-end;justify-content:center;padding:0;
+}
+@media(min-width:601px){
+  .modal-overlay{align-items:center;padding:1.5rem}
 }
 .modal-overlay.open{display:flex}
 .modal-box{
   background:var(--card);border:0.5px solid var(--border2);
-  border-radius:18px;padding:2rem;width:100%;max-width:420px;
-  box-shadow:0 24px 80px rgba(0,0,0,0.6);
-  animation:modalIn 0.22s cubic-bezier(.34,1.4,.64,1);
+  border-radius:18px 18px 0 0;padding:1.5rem 1.25rem 1.25rem;
+  width:100%;max-width:460px;
+  max-height:92dvh;display:flex;flex-direction:column;
+  box-shadow:0 -8px 40px rgba(0,0,0,0.5);
+  animation:modalInMobile 0.28s cubic-bezier(.32,1.2,.64,1);
+  overflow:hidden;
 }
+@media(min-width:601px){
+  .modal-box{
+    border-radius:18px;padding:2rem;max-height:90vh;
+    animation:modalIn 0.22s cubic-bezier(.34,1.4,.64,1);
+    box-shadow:0 24px 80px rgba(0,0,0,0.6);
+  }
+}
+.modal-box::before{
+  content:'';display:block;width:36px;height:4px;
+  background:var(--text3);border-radius:4px;
+  margin:0 auto 14px;flex-shrink:0;
+}
+@media(min-width:601px){.modal-box::before{display:none}}
+.modal-scroll{flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding-right:2px}
+.modal-scroll::-webkit-scrollbar{width:3px}
+.modal-scroll::-webkit-scrollbar-thumb{background:var(--accent-dim2);border-radius:3px}
 @keyframes modalIn{from{opacity:0;transform:scale(0.92) translateY(12px)}to{opacity:1;transform:none}}
-.modal-header{text-align:center;margin-bottom:1.5rem}
-.modal-icon{font-size:40px;margin-bottom:10px}
+@keyframes modalInMobile{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-header{text-align:center;margin-bottom:1.25rem;flex-shrink:0}
+.modal-icon{font-size:36px;margin-bottom:8px}
 .modal-header h3{font-size:18px;font-weight:700;margin-bottom:4px}
 .modal-header p{font-size:13px;color:var(--text2)}
 
@@ -262,6 +285,45 @@ td .mono{font-family:'Space Mono',monospace;color:var(--accent)}
 .import-drop:hover,.import-drop.drag{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
 .import-drop input{display:none}
 
+/* ── MODAL TIPO CAMARÃO ──────────────────────────────────── */
+.tipo-card{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px;background:var(--bg2);
+  border:0.5px solid var(--border);border-radius:var(--radius-sm);
+  margin-bottom:8px;cursor:pointer;transition:all 0.2s;gap:10px;
+}
+.tipo-card:hover{border-color:var(--accent);background:var(--accent-dim);transform:translateX(2px)}
+.tipo-card-nome{font-weight:700;font-size:15px;color:var(--accent)}
+.tipo-card-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.tipo-card-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.tipo-card-badge.disponivel{background:rgba(0,201,167,0.15);color:var(--accent);border:0.5px solid rgba(0,201,167,0.3)}
+.tipo-card-badge.zerado{background:var(--danger-dim);color:var(--danger);border:0.5px solid rgba(255,107,107,0.3)}
+.tipo-card-badge.parcial{background:var(--warn-dim);color:var(--warn);border:0.5px solid rgba(255,196,61,0.3)}
+
+.tipo-detail-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 0;border-bottom:0.5px solid rgba(0,201,167,0.06);font-size:13px;
+}
+.tipo-detail-row:last-child{border-bottom:none}
+.tipo-detail-label{color:var(--text2)}
+.tipo-detail-val{font-family:'Space Mono',monospace;font-weight:700;color:var(--text)}
+
+.tipo-prog-wrap{margin:14px 0 6px}
+.tipo-prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:5px}
+.tipo-prog-bg{background:var(--bg2);border-radius:6px;height:8px;overflow:hidden}
+.tipo-prog-bar{height:8px;border-radius:6px;background:var(--accent);transition:width 0.5s cubic-bezier(.4,0,.2,1)}
+.tipo-prog-bar.full{background:var(--danger)}
+.tipo-prog-bar.high{background:var(--warn)}
+
+.tipo-clientes-list{margin-top:12px}
+.tipo-cliente-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 10px;background:var(--bg2);border-radius:var(--radius-sm);
+  margin-bottom:6px;font-size:13px;border:0.5px solid var(--border);
+}
+.tipo-cliente-nome{font-weight:600}
+.tipo-cliente-info{font-size:11px;color:var(--text2);margin-top:1px}
+
 </style>
 </head>
 <body>
@@ -288,6 +350,44 @@ td .mono{font-family:'Space Mono',monospace;color:var(--accent)}
 </div>
 
 <div id="app" style="display:none;flex-direction:column;min-height:100vh">
+  <!-- Modal Tipo Camarão -->
+  <div class="modal-overlay" id="modal-tipo-detalhe">
+    <div class="modal-box" style="max-width:460px">
+      <!-- Header fixo -->
+      <div class="modal-header" style="margin-bottom:1rem">
+        <div class="modal-icon">🦐</div>
+        <h3 id="modal-tipo-titulo" style="font-size:17px">Tipo de Camarão</h3>
+        <p id="modal-tipo-sub" style="font-size:12px;color:var(--text2)"></p>
+      </div>
+
+      <!-- Conteúdo com scroll -->
+      <div class="modal-scroll">
+        <!-- Métricas do tipo -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px" id="modal-tipo-metricas"></div>
+
+        <!-- Barra de progresso -->
+        <div class="tipo-prog-wrap">
+          <div class="tipo-prog-label">
+            <span>Separado / Total</span>
+            <span id="modal-tipo-pct">0%</span>
+          </div>
+          <div class="tipo-prog-bg">
+            <div class="tipo-prog-bar" id="modal-tipo-bar" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Lista de clientes deste tipo -->
+        <div style="margin-top:14px">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px">Clientes com este tipo</div>
+          <div class="tipo-clientes-list" id="modal-tipo-clientes"></div>
+        </div>
+      </div>
+
+      <!-- Botão fixo no rodapé -->
+      <button class="btn btn-full" style="margin-top:12px;flex-shrink:0" onclick="fecharModalTipo()">Fechar</button>
+    </div>
+  </div>
+
   <!-- Modal Iniciar Pescaria -->
   <div class="modal-overlay" id="modal-iniciar">
     <div class="modal-box">
@@ -1015,7 +1115,24 @@ function renderAll() {
   if (selectTipoPedido) {
     if (lotes.length > 0) {
       const tiposDeEstoque = [...new Set(lotes.map(l => l.tipo))];
-      selectTipoPedido.innerHTML = tiposDeEstoque.map(t => `<option value="${t}">${t}</option>`).join('');
+      // Calcula disponível por tipo para mostrar no select
+      const pedidosArr = pedidosArray();
+      const separadoPorTipoSel = {};
+      pedidosArr.forEach(p => {
+        if (!separadoPorTipoSel[p.tipo]) separadoPorTipoSel[p.tipo] = 0;
+        separadoPorTipoSel[p.tipo] += (p.caixas || 0);
+      });
+      const caixasPorTipoSel = {};
+      lotes.forEach(l => {
+        if (!caixasPorTipoSel[l.tipo]) caixasPorTipoSel[l.tipo] = 0;
+        caixasPorTipoSel[l.tipo] += (l.caixas || 0);
+      });
+      selectTipoPedido.innerHTML = tiposDeEstoque.map(t => {
+        const tot = caixasPorTipoSel[t] || 0;
+        const sep = separadoPorTipoSel[t] || 0;
+        const disp = Math.max(0, tot - sep);
+        return `<option value="${t}">${t} — ${disp} cx disponíveis</option>`;
+      }).join('');
     } else {
       selectTipoPedido.innerHTML = '<option value="">— adicione lotes no estoque primeiro —</option>';
     }
@@ -1027,7 +1144,7 @@ function renderAll() {
         <div class="item-top">
           <div style="flex:1">
             <div class="item-nome">${p.nome}</div>
-            <div class="item-info"><span style="color:var(--accent);font-weight:600">${p.tipo}</span>${p.contato ? ' · ' + p.contato : ''}${p.obs ? ' · ' + p.obs : ''}</div>
+            <div class="item-info"><span style="color:var(--accent);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px" onclick="abrirModalTipo('${p.tipo.replace(/'/g,"\\'")}')">🦐 ${p.tipo}</span>${p.contato ? ' · ' + p.contato : ''}${p.obs ? ' · ' + p.obs : ''}</div>
             <div class="item-info" style="color:var(--text3)">${p.caixas * KG_POR_CAIXA}kg total</div>
           </div>
           <div class="item-kg">${p.caixas} cx</div>
@@ -1040,25 +1157,66 @@ function renderAll() {
   // Estoque
   let estHtml = '';
   if (lotes.length > 0) {
+    // Agrupa lotes por tipo para mostrar cards clicáveis
+    const tiposMap = {};
+    lotes.forEach(l => {
+      if (!tiposMap[l.tipo]) tiposMap[l.tipo] = { caixas: 0, lotes: [] };
+      tiposMap[l.tipo].caixas += (l.caixas || 0);
+      tiposMap[l.tipo].lotes.push(l);
+    });
+
+    // Calcula caixas separadas por tipo
+    const pedidos = pedidosArray();
+    const separadoPorTipo = {};
+    pedidos.forEach(p => {
+      if (!separadoPorTipo[p.tipo]) separadoPorTipo[p.tipo] = 0;
+      separadoPorTipo[p.tipo] += (p.caixas || 0);
+    });
+
+    const tiposCards = Object.entries(tiposMap).map(([tipo, info]) => {
+      const separado = separadoPorTipo[tipo] || 0;
+      const disponivel = Math.max(0, info.caixas - separado);
+      const pct = info.caixas > 0 ? Math.round((separado / info.caixas) * 100) : 0;
+      let badgeClass = disponivel > 0 ? 'disponivel' : 'zerado';
+      if (disponivel > 0 && pct > 0) badgeClass = 'parcial';
+      if (disponivel > 0 && pct === 0) badgeClass = 'disponivel';
+      const badgeTxt = disponivel > 0 ? `${disponivel} cx livres` : 'Esgotado';
+      const numLotes = info.lotes.length;
+      return `<div class="tipo-card" onclick="abrirModalTipo('${tipo.replace(/'/g,"\\'")}')">
+        <div style="flex:1">
+          <div class="tipo-card-nome">${tipo}</div>
+          <div class="tipo-card-sub">${info.caixas} cx total · ${numLotes} lote(s) · ${separado} cx separadas</div>
+        </div>
+        <span class="tipo-card-badge ${badgeClass}">${badgeTxt}</span>
+        <span style="color:var(--text3);font-size:18px;margin-left:4px">›</span>
+      </div>`;
+    }).join('');
+
     estHtml = `<div class="card">
-      <div class="card-header"><span class="card-title">📦 Lotes Ativos na Semana</span></div>
+      <div class="card-header"><span class="card-title">📦 Lotes Ativos na Semana</span><span style="font-size:11px;color:var(--text2)">Clique em um tipo para detalhes</span></div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:16px">
         <div class="metric"><div class="m-val">${estCaixas}<sup>cx</sup></div><div class="m-lbl">Total caixas</div></div>
         <div class="metric"><div class="m-val">${estCaixas * KG_POR_CAIXA}<sup>kg</sup></div><div class="m-lbl">Peso Total</div></div>
         <div class="metric"><div class="m-val">${totalEnt}<sup>cx</sup></div><div class="m-lbl">Entregue</div></div>
         <div class="metric"><div class="m-val">${dispCaixas}<sup>cx</sup></div><div class="m-lbl">Disponível</div></div>
       </div>
-      ${lotes.map(l => `
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border)">
-          <div style="flex:1">
-            <div style="font-weight:700;font-size:15px;color:var(--accent)">${l.tipo}</div>
-            <div style="font-size:12px;color:var(--text2);margin-top:2px">
-              ${l.caixas} caixas (${l.caixas * KG_POR_CAIXA}kg) 
-              ${l.data ? ' · Chegada: ' + l.data : ''}${l.obs ? ' · ' + l.obs : ''}
+      ${tiposCards}
+      <details style="margin-top:10px">
+        <summary style="font-size:12px;color:var(--text2);cursor:pointer;padding:6px 0;user-select:none">Ver todos os lotes individuais (${lotes.length})</summary>
+        <div style="margin-top:8px">
+        ${lotes.map(l => `
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border)">
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:14px;color:var(--accent)">${l.tipo}</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:2px">
+                ${l.caixas} caixas (${l.caixas * KG_POR_CAIXA}kg)
+                ${l.data ? ' · Chegada: ' + l.data : ''}${l.obs ? ' · ' + l.obs : ''}
+              </div>
             </div>
-          </div>
-          <button class="btn btn-danger btn-sm" onclick="removerLote('${l.id}')">✕</button>
-        </div>`).join('')}
+            <button class="btn btn-danger btn-sm" onclick="removerLote('${l.id}')">✕</button>
+          </div>`).join('')}
+        </div>
+      </details>
     </div>`;
   }
   document.getElementById('estoque-status').innerHTML = estHtml || '<div class="empty">Estoque vazio. Adicione um lote acima.</div>';
@@ -1850,6 +2008,68 @@ document.addEventListener('DOMContentLoaded', function() {
       importarBackupArquivo(fakeInput);
     }
   });
+});
+
+// ── MODAL TIPO CAMARÃO ────────────────────────────────────
+window.abrirModalTipo = function(tipo) {
+  if (!semanaAtual) return;
+  const lotes   = lotesArray().filter(l => l.tipo === tipo);
+  const pedidos = pedidosArray().filter(p => p.tipo === tipo);
+
+  const totalCaixasTipo = lotes.reduce((s, l) => s + (l.caixas || 0), 0);
+  const separadoTipo    = pedidos.reduce((s, p) => s + (p.caixas || 0), 0);
+  const entregue        = pedidos.reduce((s, p) => s + (p.entregue || 0), 0);
+  const disponivel      = Math.max(0, totalCaixasTipo - separadoTipo);
+  const pct             = totalCaixasTipo > 0 ? Math.round((separadoTipo / totalCaixasTipo) * 100) : 0;
+
+  document.getElementById('modal-tipo-titulo').textContent = tipo;
+  document.getElementById('modal-tipo-sub').textContent =
+    `${lotes.length} lote(s) · ${totalCaixasTipo} cx total (${totalCaixasTipo * KG_POR_CAIXA}kg)`;
+
+  // Métricas
+  document.getElementById('modal-tipo-metricas').innerHTML = `
+    <div class="metric"><div class="m-val" style="font-size:20px">${totalCaixasTipo}<sup style="font-size:11px">cx</sup></div><div class="m-lbl">No estoque</div></div>
+    <div class="metric"><div class="m-val" style="font-size:20px;color:var(--warn)">${separadoTipo}<sup style="font-size:11px">cx</sup></div><div class="m-lbl">Separadas</div></div>
+    <div class="metric ${disponivel === 0 && totalCaixasTipo > 0 ? 'danger' : ''}">
+      <div class="m-val" style="font-size:20px;${disponivel === 0 && totalCaixasTipo > 0 ? 'color:var(--danger)' : ''}">${disponivel}<sup style="font-size:11px">cx</sup></div>
+      <div class="m-lbl">Disponível</div>
+    </div>`;
+
+  // Barra
+  const bar = document.getElementById('modal-tipo-bar');
+  bar.style.width = pct + '%';
+  bar.className = 'tipo-prog-bar' + (pct >= 100 ? ' full' : pct >= 70 ? ' high' : '');
+  document.getElementById('modal-tipo-pct').textContent = pct + '%';
+
+  // Clientes
+  let clientesHtml = '';
+  if (pedidos.length === 0) {
+    clientesHtml = '<div style="font-size:13px;color:var(--text3);text-align:center;padding:12px 0">Nenhum cliente com este tipo ainda.</div>';
+  } else {
+    clientesHtml = pedidos.map(p => {
+      const restante = Math.max(0, (p.caixas || 0) - (p.entregue || 0));
+      return `<div class="tipo-cliente-item">
+        <div style="flex:1">
+          <div class="tipo-cliente-nome">${p.nome}</div>
+          <div class="tipo-cliente-info">${p.caixas} cx reservadas · ${p.entregue || 0} cx entregues · <b style="color:${restante > 0 ? 'var(--warn)' : 'var(--accent)'}">${restante > 0 ? restante + ' cx pendente' : 'concluído'}</b>${p.contato ? ' · ' + p.contato : ''}</div>
+        </div>
+        ${badge(p.status)}
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('modal-tipo-clientes').innerHTML = clientesHtml;
+
+  document.getElementById('modal-tipo-detalhe').classList.add('open');
+};
+
+window.fecharModalTipo = function() {
+  document.getElementById('modal-tipo-detalhe').classList.remove('open');
+};
+
+// Fecha modal ao clicar fora
+document.addEventListener('click', function(e) {
+  const overlay = document.getElementById('modal-tipo-detalhe');
+  if (e.target === overlay) fecharModalTipo();
 });
 
 // ── INIT ─────────────────────────────────────────────────
