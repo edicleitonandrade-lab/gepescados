@@ -1175,6 +1175,9 @@ function renderAll() {
 
     const tiposCards = Object.entries(tiposMap).map(([tipo, info]) => {
       const separado = separadoPorTipo[tipo] || 0;
+      // Calcula entregues por tipo
+      const entreguesPorTipo = pedidos.filter(p => p.tipo === tipo).reduce((s, p) => s + (p.entregue || 0), 0);
+      const aEntregar = Math.max(0, separado - entreguesPorTipo);
       const disponivel = Math.max(0, info.caixas - separado);
       const pct = info.caixas > 0 ? Math.round((separado / info.caixas) * 100) : 0;
       let badgeClass = disponivel > 0 ? 'disponivel' : 'zerado';
@@ -1182,10 +1185,20 @@ function renderAll() {
       if (disponivel > 0 && pct === 0) badgeClass = 'disponivel';
       const badgeTxt = disponivel > 0 ? `${disponivel} cx livres` : 'Esgotado';
       const numLotes = info.lotes.length;
+      // Barra de progresso de entregas
+      const pctEnt = separado > 0 ? Math.round((entreguesPorTipo / separado) * 100) : 0;
+      const barColor = aEntregar === 0 && separado > 0 ? 'var(--accent)' : 'var(--warn)';
       return `<div class="tipo-card" onclick="abrirModalTipo('${tipo.replace(/'/g,"\\'")}')">
         <div style="flex:1">
           <div class="tipo-card-nome">${tipo}</div>
           <div class="tipo-card-sub">${info.caixas} cx total · ${numLotes} lote(s) · ${separado} cx separadas</div>
+          ${separado > 0 ? `<div style="display:flex;gap:12px;margin-top:5px;font-size:11px">
+            <span style="color:var(--accent)">✓ ${entreguesPorTipo} cx entregues</span>
+            ${aEntregar > 0 ? `<span style="color:var(--warn)">⏳ ${aEntregar} cx a entregar</span>` : `<span style="color:var(--accent)">🎉 Tudo entregue!</span>`}
+          </div>
+          <div style="background:var(--bg);border-radius:4px;height:4px;margin-top:5px;overflow:hidden">
+            <div style="height:4px;border-radius:4px;background:${barColor};width:${pctEnt}%;transition:width 0.4s"></div>
+          </div>` : ''}
         </div>
         <span class="tipo-card-badge ${badgeClass}">${badgeTxt}</span>
         <span style="color:var(--text3);font-size:18px;margin-left:4px">›</span>
@@ -2026,10 +2039,17 @@ window.abrirModalTipo = function(tipo) {
   document.getElementById('modal-tipo-sub').textContent =
     `${lotes.length} lote(s) · ${totalCaixasTipo} cx total (${totalCaixasTipo * KG_POR_CAIXA}kg)`;
 
+  const aEntregarTipo = Math.max(0, separadoTipo - entregue);
+
   // Métricas
   document.getElementById('modal-tipo-metricas').innerHTML = `
     <div class="metric"><div class="m-val" style="font-size:20px">${totalCaixasTipo}<sup style="font-size:11px">cx</sup></div><div class="m-lbl">No estoque</div></div>
     <div class="metric"><div class="m-val" style="font-size:20px;color:var(--warn)">${separadoTipo}<sup style="font-size:11px">cx</sup></div><div class="m-lbl">Separadas</div></div>
+    <div class="metric"><div class="m-val" style="font-size:20px;color:var(--accent)">${entregue}<sup style="font-size:11px">cx</sup></div><div class="m-lbl">Entregues</div></div>
+    <div class="metric ${aEntregarTipo > 0 ? 'warn' : (separadoTipo > 0 ? '' : '')}">
+      <div class="m-val" style="font-size:20px;${aEntregarTipo > 0 ? 'color:var(--warn)' : 'color:var(--accent)'}">${aEntregarTipo}<sup style="font-size:11px">cx</sup></div>
+      <div class="m-lbl">A Entregar</div>
+    </div>
     <div class="metric ${disponivel === 0 && totalCaixasTipo > 0 ? 'danger' : ''}">
       <div class="m-val" style="font-size:20px;${disponivel === 0 && totalCaixasTipo > 0 ? 'color:var(--danger)' : ''}">${disponivel}<sup style="font-size:11px">cx</sup></div>
       <div class="m-lbl">Disponível</div>
